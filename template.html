@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grafana BigData 41211036 | 亞洲旅館營運大數據與全球房價視覺化平台</title>
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Leaflet Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root {
+      --gf-bg: #111217;
+      --gf-panel-bg: #181b1f;
+      --gf-panel-border: #22262b;
+      --gf-header-bg: #14161a;
+      --gf-text-main: #ccccdc;
+      --gf-text-sub: #8e8ea0;
+      --gf-accent: #ff7a00;
+      --gf-accent-blue: #3274d9;
+      --gf-accent-green: #37872d;
+      --gf-accent-red: #e02f44;
+      --gf-accent-purple: #8f3bb8;
+      --gf-card-hover: #1e2228;
+      --gf-input-bg: #0b0c0e;
+      --gf-input-border: #2c3235;
+    }
+    .light {
+      --gf-bg: #f4f5f7;
+      --gf-panel-bg: #ffffff;
+      --gf-panel-border: #d8d9da;
+      --gf-header-bg: #ffffff;
+      --gf-text-main: #22252b;
+      --gf-text-sub: #6e7073;
+      --gf-accent: #e65100;
+      --gf-accent-blue: #1f60c4;
+      --gf-accent-green: #297a23;
+      --gf-accent-red: #cc1d33;
+      --gf-accent-purple: #702696;
+      --gf-card-hover: #f9f9fa;
+      --gf-input-bg: #ffffff;
+      --gf-input-border: #c7cbd1;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+      background-color: var(--gf-bg);
+      color: var(--gf-text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    /* Top Header */
+    .gf-header {
+      background-color: var(--gf-header-bg);
+      border-bottom: 1px solid var(--gf-panel-border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .gf-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .gf-logo {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #ff7a00, #ff015b);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      font-weight: 800;
+      box-shadow: 0 2px 10px rgba(255, 122, 0, 0.4);
+    }
+    .gf-title h1 {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .gf-badge-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      background: rgba(50, 116, 217, 0.2);
+      color: #5794f2;
+      border: 1px solid rgba(50, 116, 217, 0.4);
+    }
+    .gf-subtitle {
+      font-size: 12px;
+      color: var(--gf-text-sub);
+    }
+    .gf-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .gf-btn {
+      background-color: var(--gf-panel-bg);
+      border: 1px solid var(--gf-input-border);
+      color: var(--gf-text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .gf-btn:hover {
+      background-color: var(--gf-card-hover);
+      border-color: var(--gf-accent-blue);
+    }
+    .gf-btn-primary {
+      background-color: var(--gf-accent-blue);
+      border-color: var(--gf-accent-blue);
+      color: white;
+    }
+    .gf-btn-primary:hover {
+      background-color: #2458aa;
+    }
+    /* Toolbar / Variables Bar */
+    .gf-toolbar {
+      background-color: var(--gf-panel-bg);
+      border-bottom: 1px solid var(--gf-panel-border);
+      padding: 10px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+    }
+    .gf-filter-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .gf-filter-label {
+      font-size: 12px;
+      color: var(--gf-text-sub);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .gf-select, .gf-input {
+      background-color: var(--gf-input-bg);
+      border: 1px solid var(--gf-input-border);
+      color: var(--gf-text-main);
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .gf-select:focus, .gf-input:focus {
+      border-color: var(--gf-accent-blue);
+    }
+    /* Navigation Tabs */
+    .gf-tabs {
+      background-color: var(--gf-header-bg);
+      border-bottom: 1px solid var(--gf-panel-border);
+      padding: 0 24px;
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+    }
+    .gf-tab {
+      padding: 12px 4px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gf-text-sub);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .gf-tab:hover {
+      color: var(--gf-text-main);
+    }
+    .gf-tab.active {
+      color: var(--gf-accent);
+      border-bottom-color: var(--gf-accent);
+    }
+    /* Main Layout */
+    .gf-main {
+      padding: 20px 24px;
+      flex: 1;
+      max-width: 1700px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    /* KPI Stat Grid */
+    .gf-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .gf-kpi-card {
+      background-color: var(--gf-panel-bg);
+      border: 1px solid var(--gf-panel-border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .gf-kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    }
+    .gf-kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--gf-accent-blue);
+    }
+    .gf-kpi-card.orange::before { background: var(--gf-accent); }
+    .gf-kpi-card.green::before { background: var(--gf-accent-green); }
+    .gf-kpi-card.purple::before { background: var(--gf-accent-purple); }
+    .gf-kpi-card.red::before { background: var(--gf-accent-red); }
+    .gf-kpi-title {
+      font-size: 12px;
+      color: var(--gf-text-sub);
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .gf-kpi-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--gf-text-main);
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+    .gf-kpi-sub {
+      font-size: 11px;
+      color: var(--gf-text-sub);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .gf-trend-up { color: #52c41a; font-weight: 600; }
+    .gf-trend-down { color: #ff4d4f; font-weight: 600; }
+    /* Panel Grid */
+    .gf-panel-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .col-12 { grid-column: span 12; }
+    .col-8 { grid-column: span 8; }
+    .col-7 { grid-column: span 7; }
+    .col-6 { grid-column: span 6; }
+    .col-5 { grid-column: span 5; }
+    .col-4 { grid-column: span 4; }
+    @media (max-width: 1024px) {
+      .col-8, .col-7, .col-6, .col-5, .col-4 { grid-column: span 12; }
+    }
+    .gf-panel {
+      background-color: var(--gf-panel-bg);
+      border: 1px solid var(--gf-panel-border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .gf-panel-header {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--gf-panel-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .gf-panel-title {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .gf-panel-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .gf-panel-body {
+      padding: 18px;
+      flex: 1;
+      position: relative;
+    }
+    /* Table Styling */
+    .gf-table-container {
+      overflow-x: auto;
+      max-height: 520px;
+    }
+    .gf-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .gf-table th {
+      background-color: var(--gf-input-bg);
+      color: var(--gf-text-sub);
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--gf-panel-border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    .gf-table th:hover {
+      color: var(--gf-accent);
+    }
+    .gf-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--gf-panel-border);
+      white-space: nowrap;
+    }
+    .gf-table tr:hover {
+      background-color: var(--gf-card-hover);
+    }
+    .tag-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .tag-ihg { background: rgba(255, 122, 0, 0.15); color: #ff9933; border: 1px solid rgba(255, 122, 0, 0.3); }
+    .tag-marriott { background: rgba(224, 47, 68, 0.15); color: #ff5768; border: 1px solid rgba(224, 47, 68, 0.3); }
+    .tag-hyatt { background: rgba(50, 116, 217, 0.15); color: #689ff8; border: 1px solid rgba(50, 116, 217, 0.3); }
+    .tag-hilton { background: rgba(143, 59, 184, 0.15); color: #b764e8; border: 1px solid rgba(143, 59, 184, 0.3); }
+    .tag-accor { background: rgba(55, 135, 45, 0.15); color: #5bc44a; border: 1px solid rgba(55, 135, 45, 0.3); }
+    .tag-other { background: rgba(142, 142, 160, 0.15); color: #b5b5c3; border: 1px solid rgba(142, 142, 160, 0.3); }
+    /* Callout & Insight Cards */
+    .gf-insight-box {
+      background: rgba(50, 116, 217, 0.08);
+      border-left: 4px solid var(--gf-accent-blue);
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .gf-insight-box.gold {
+      background: rgba(255, 122, 0, 0.08);
+      border-left-color: var(--gf-accent);
+    }
+    .gf-insight-box.green {
+      background: rgba(55, 135, 45, 0.08);
+      border-left-color: var(--gf-accent-green);
+    }
+    .gf-insight-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    /* Modal */
+    .gf-modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .gf-modal {
+      background: var(--gf-panel-bg);
+      border: 1px solid var(--gf-panel-border);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 680px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    }
+    .gf-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--gf-panel-border);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    /* Footer */
+    .gf-footer {
+      background: var(--gf-header-bg);
+      border-top: 1px solid var(--gf-panel-border);
+      padding: 14px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--gf-text-sub);
+    }
+    #mapView { height: 440px; width: 100%; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="gf-header">
+    <div class="gf-brand">
+      <div class="gf-logo"><i class="fa-solid fa-chart-line"></i></div>
+      <div class="gf-title">
+        <h1>Grafana BigData 41211036 <span class="gf-badge-tag">v2.1 Production</span></h1>
+        <div class="gf-subtitle">亞洲旅館真實館名與模擬營運大數據視覺化分析平台 • 全球即時比價系統</div>
+      </div>
+    </div>
+    <div class="gf-header-actions">
+      <span class="gf-badge-tag" style="background: rgba(55,135,45,0.2); color: #5bc44a; border-color: rgba(55,135,45,0.4)">
+        <i class="fa-solid fa-cloud-bolt"></i> Cloudflare Edge Active
+      </span>
+      <button class="gf-btn" id="btnExportCSV"><i class="fa-solid fa-file-csv"></i> 匯出報表</button>
+      <button class="gf-btn" id="btnThemeToggle"><i class="fa-solid fa-moon"></i> 主題切換</button>
+    </div>
+  </header>
+
+  <!-- Grafana Toolbar / Variables -->
+  <div class="gf-toolbar">
+    <div class="gf-filter-item">
+      <span class="gf-filter-label"><i class="fa-solid fa-money-bill-wave"></i> 換算幣別:</span>
+      <select id="selCurrency" class="gf-select">
+        <option value="USD" selected>USD ($) 美元基準</option>
+        <option value="TWD">TWD (NT$) 新台幣</option>
+        <option value="JPY">JPY (¥) 日圓</option>
+        <option value="EUR">EUR (€) 歐元</option>
+        <option value="CNY">CNY (¥) 人民幣</option>
+        <option value="LOCAL">當地原始幣別 (Local)</option>
+      </select>
+    </div>
+
+    <div class="gf-filter-item">
+      <span class="gf-filter-label"><i class="fa-solid fa-earth-asia"></i> 國家/區域:</span>
+      <select id="selCountry" class="gf-select">
+        <option value="ALL" selected>全部區域 (11 國家/地區)</option>
+      </select>
+    </div>
+
+    <div class="gf-filter-item">
+      <span class="gf-filter-label"><i class="fa-solid fa-hotel"></i> 飯店品牌:</span>
+      <select id="selBrand" class="gf-select">
+        <option value="ALL" selected>全部品牌集團 (IHG, 萬豪, 凱悅...)</option>
+      </select>
+    </div>
+
+    <div class="gf-filter-item">
+      <span class="gf-filter-label"><i class="fa-solid fa-calendar-days"></i> 房價時段:</span>
+      <select id="selDayType" class="gf-select">
+        <option value="ALL" selected>全部 (平日 + 假日平均)</option>
+        <option value="WEEKDAY">僅平日 (Weekday)</option>
+        <option value="WEEKEND">僅週末與假日 (Weekend/Holiday)</option>
+      </select>
+    </div>
+
+    <div class="gf-filter-item">
+      <span class="gf-filter-label"><i class="fa-solid fa-compass"></i> 市場定位:</span>
+      <select id="selSegment" class="gf-select">
+        <option value="ALL" selected>全部市場定位</option>
+        <option value="商務">商務型 (Business)</option>
+        <option value="渡假">渡假/休閒型 (Resort)</option>
+      </select>
+    </div>
+
+    <div class="gf-filter-item" style="flex: 1; min-width: 220px;">
+      <span class="gf-filter-label"><i class="fa-solid fa-magnifying-glass"></i> 快搜:</span>
+      <input type="text" id="txtSearch" class="gf-input" style="width: 100%;" placeholder="輸入飯店名稱、城市、國家..." />
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="gf-tabs">
+    <div class="gf-tab active" data-tab="tab-overview"><i class="fa-solid fa-gauge-high"></i> 總覽營運看板</div>
+    <div class="gf-tab" data-tab="tab-brands"><i class="fa-solid fa-hotel"></i> 品牌平日 vs 假日房價深度分析</div>
+    <div class="gf-tab" data-tab="tab-regions"><i class="fa-solid fa-globe"></i> 各區域/國家房價對比</div>
+    <div class="gf-tab" data-tab="tab-correlation"><i class="fa-solid fa-project-diagram"></i> 品牌與各國房價關聯性分析</div>
+    <div class="gf-tab" data-tab="tab-explorer"><i class="fa-solid fa-table-list"></i> 全球/全區飯店快搜比價表</div>
+    <div class="gf-tab" data-tab="tab-trends"><i class="fa-solid fa-chart-line"></i> 31天模擬走勢波形</div>
+    <div class="gf-tab" data-tab="tab-map"><i class="fa-solid fa-map-location-dot"></i> 飯店地理地圖</div>
+  </div>
+
+  <!-- Main Content Area -->
+  <main class="gf-main">
+    
+    <!-- Executive KPI Row -->
+    <div class="gf-kpi-grid">
+      <div class="gf-kpi-card orange">
+        <div class="gf-kpi-title">
+          <span>全區平均每晚房價</span>
+          <i class="fa-solid fa-tag"></i>
+        </div>
+        <div class="gf-kpi-value" id="kpiAvgPrice">$103.45</div>
+        <div class="gf-kpi-sub">
+          <span>平日 <strong id="kpiWeekdayPrice">$100.80</strong></span>
+          <span>|</span>
+          <span>假日 <strong id="kpiWeekendPrice">$106.10</strong></span>
+        </div>
+      </div>
+
+      <div class="gf-kpi-card green">
+        <div class="gf-kpi-title">
+          <span>週末與假日平均加價率</span>
+          <i class="fa-solid fa-arrow-trend-up"></i>
+        </div>
+        <div class="gf-kpi-value gf-trend-up" id="kpiMarkupRate">+5.25%</div>
+        <div class="gf-kpi-sub">
+          <span>假日平均每晚調幅</span>
+          <span class="gf-trend-up" id="kpiSpreadVal">+$5.30</span>
+        </div>
+      </div>
+
+      <div class="gf-kpi-card">
+        <div class="gf-kpi-title">
+          <span>最高均價市場</span>
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        <div class="gf-kpi-value" id="kpiTopMarket">新加坡</div>
+        <div class="gf-kpi-sub">
+          <span>平均每晚房價</span>
+          <strong id="kpiTopMarketPrice">$151.53 USD</strong>
+        </div>
+      </div>
+
+      <div class="gf-kpi-card purple">
+        <div class="gf-kpi-title">
+          <span>品牌最高溢價率</span>
+          <i class="fa-solid fa-crown"></i>
+        </div>
+        <div class="gf-kpi-value" id="kpiTopBrand">晶華麗晶 / 萬豪</div>
+        <div class="gf-kpi-sub">
+          <span>假日調幅高達</span>
+          <strong class="gf-trend-up" id="kpiTopBrandMarkup">+6.91%</strong>
+        </div>
+      </div>
+
+      <div class="gf-kpi-card red">
+        <div class="gf-kpi-title">
+          <span>分析數據規模</span>
+          <i class="fa-solid fa-database"></i>
+        </div>
+        <div class="gf-kpi-value" id="kpiTotalRecords">80,848</div>
+        <div class="gf-kpi-sub">
+          <span>涵蓋 <strong>165</strong> 家真實旅館 • <strong>2,608</strong> 模擬情境</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 1: OVERVIEW DASHBOARD -->
+    <div id="tab-overview" class="tab-content active">
+      <div class="gf-insight-box gold">
+        <div class="gf-insight-title"><i class="fa-solid fa-lightbulb"></i> 大數據分析核心結論摘要 (Executive Summary)</div>
+        <p><strong>1. 平日與假日房價規律：</strong>各大國際品牌在平日與假日均展現結構性價差，整體亞洲市場週末假日平均調幅為 <strong>+5.25%</strong>。其中休閒渡假品牌（如晶華麗晶體系 +6.91%、希爾頓 +5.94%、萬豪 +5.68%）在假日價格彈性顯著高於純商務市場。</p>
+        <p><strong>2. 品牌與國家房價關聯性：</strong>國家的基礎經濟與旅遊門檻（Market Baseline）決定房價底線（新加坡均價 $151.5 USD 最高，印尼 $58.2 USD 最親民）；然而<strong>品牌溢價效應（Brand Premium）跨國界高度成立</strong>，跨國巨頭（IHG、萬豪、凱悅）在各國均享有高於市場基價 15%~30% 的溢價能力。</p>
+      </div>
+
+      <div class="gf-panel-grid">
+        <div class="gf-panel col-7">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-chart-column"></i> 各大飯店品牌平日 vs 假日每晚房價對比</div>
+          </div>
+          <div class="gf-panel-body">
+            <canvas id="chartBrandCompare" height="280"></canvas>
+          </div>
+        </div>
+
+        <div class="gf-panel col-5">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-percent"></i> 品牌假日加價幅度 (%) 排行</div>
+          </div>
+          <div class="gf-panel-body">
+            <canvas id="chartBrandMarkup" height="280"></canvas>
+          </div>
+        </div>
+
+        <div class="gf-panel col-6">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-earth-asia"></i> 亞洲 11 國/地區平均每晚房價對比</div>
+          </div>
+          <div class="gf-panel-body">
+            <canvas id="chartCountryCompare" height="260"></canvas>
+          </div>
+        </div>
+
+        <div class="gf-panel col-6">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-wave-square"></i> 31 天營運走勢波形監控 (平日平原 vs 週末波峰)</div>
+          </div>
+          <div class="gf-panel-body">
+            <canvas id="chartDailyTrend" height="260"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: BRAND ANALYSIS -->
+    <div id="tab-brands" class="tab-content" style="display: none;">
+      <div class="gf-insight-box">
+        <div class="gf-insight-title"><i class="fa-solid fa-circle-info"></i> 亞洲主要飯店品牌平日 vs 假日房價深入剖析 (IHG、萬豪、凱悅、希爾頓、雅高等)</div>
+        <p>本模組深入比較亞洲各大飯店品牌集團在 <strong>平日 (Weekday)</strong> 與 <strong>週末/國定假日 (Weekend/Holiday)</strong> 的訂價行為與價格敏感彈性：</p>
+      </div>
+
+      <div class="gf-panel-grid">
+        <div class="gf-panel col-6">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-chart-bar"></i> 品牌集團平日 vs 假日絕對房價與溢價金額</div>
+          </div>
+          <div class="gf-panel-body">
+            <canvas id="chartBrandDeep" height="340"></canvas>
+          </div>
+        </div>
+
+        <div class="gf-panel col-6">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-crosshairs"></i> 🎯 品牌六維營運基因雷達診斷 (6D Strategic Diagnosis)</div>
+            <div class="gf-panel-actions">
+              <select id="selRadarBrand" class="gf-select" style="font-size: 12px; padding: 3px 8px;">
+                <option value="ALL" selected>全部對比 (Top Brands + 基準線)</option>
+                <option value="IHG">洲際集團 (IHG - 都會商務型)</option>
+                <option value="Marriott">萬豪國際 (Marriott - 全能旗艦型)</option>
+                <option value="Hyatt">凱悅集團 (Hyatt - 高端休閒型)</option>
+                <option value="Hilton">希爾頓全球 (Hilton - 中高端價值型)</option>
+                <option value="Accor">雅高集團 (Accor - 設施資產型)</option>
+                <option value="Silks">晶華麗晶 (Silks - 渡假爆發型)</option>
+              </select>
+            </div>
+          </div>
+          <div class="gf-panel-body">
+            <canvas id="chartBrandIndex" height="340"></canvas>
+          </div>
+        </div>
+
+        <!-- 6D Strategic Insight Diagnosis Cards -->
+        <div class="gf-panel col-12" style="background: rgba(50, 116, 217, 0.05); border: 1px dashed rgba(50, 116, 217, 0.35);">
+          <div class="gf-panel-header" style="background: transparent;">
+            <div class="gf-panel-title"><i class="fa-solid fa-stethoscope"></i> 雷達圖營運基因診斷與投資規劃建議 (Strategic & Investment Advisory)</div>
+          </div>
+          <div class="gf-panel-body" style="padding: 14px 18px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+              <div style="background: var(--gf-panel-bg); padding: 14px 16px; border-radius: 6px; border-left: 4px solid #ff7a00;">
+                <h4 style="font-size: 13px; font-weight: 700; color: #ff7a00; margin-bottom: 6px;"><i class="fa-solid fa-briefcase"></i> 1. 都會商務偏食型 (代表: 洲際 IHG)</h4>
+                <p style="font-size: 12px; line-height: 1.6; color: var(--gf-text-main);">
+                  • <strong>特徵</strong>：地段核心 (95分)、商務客佔比 (100分, 59.7%)，平日房價底氣強勁；但假日加價幅度亞洲最低 (+3.87%)。<br>
+                  • <strong>規劃建議</strong>：核心都會業主首選；營收管理需啟動「週末微渡假 (Staycation) 餐飲住宿套票」，填補週末收益低谷。
+                </p>
+              </div>
+              <div style="background: var(--gf-panel-bg); padding: 14px 16px; border-radius: 6px; border-left: 4px solid #e02f44;">
+                <h4 style="font-size: 13px; font-weight: 700; color: #ff5768; margin-bottom: 6px;"><i class="fa-solid fa-shield-halved"></i> 2. 全能旗艦均衡型 (代表: 萬豪 / 凱悅)</h4>
+                <p style="font-size: 12px; line-height: 1.6; color: var(--gf-text-main);">
+                  • <strong>特徵</strong>：六維指標均衡在 70~85 分區間，圍出最大幾何面積。房價與住房率雙高，抗景氣循環能力最強。<br>
+                  • <strong>規劃建議</strong>：適合量體大、具複合客源物業；業主需嚴控高星級設施折舊攤提，避免重資產壓垮投資報酬率。
+                </p>
+              </div>
+              <div style="background: var(--gf-panel-bg); padding: 14px 16px; border-radius: 6px; border-left: 4px solid #37872d;">
+                <h4 style="font-size: 13px; font-weight: 700; color: #5bc44a; margin-bottom: 6px;"><i class="fa-solid fa-umbrella-beach"></i> 3. 渡假休閒爆發型 (代表: 晶華 Silks)</h4>
+                <p style="font-size: 12px; line-height: 1.6; color: var(--gf-text-main);">
+                  • <strong>特徵</strong>：假日調幅亞洲最高 (+6.86%, 滿分100)、住房去化率極高 (92分)；但商務客佔比 (38分) 與地段較偏。<br>
+                  • <strong>規劃建議</strong>：郊區/景區物業首選；經營面需強化「平日企業移地培訓 (MICE) 合約」，拉抬週一至週四營收基線。
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gf-panel col-12">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-table"></i> 亞洲各大飯店品牌集團營運數據全貌表</div>
+          </div>
+          <div class="gf-panel-body gf-table-container">
+            <table class="gf-table" id="tblBrandDeep">
+              <thead>
+                <tr>
+                  <th>品牌集團名稱</th>
+                  <th>分析館數</th>
+                  <th>平均每晚房價</th>
+                  <th>平日均價</th>
+                  <th>假日均價</th>
+                  <th>假日調幅 (%)</th>
+                  <th>平日指數</th>
+                  <th>假日指數</th>
+                  <th>平均住房率</th>
+                  <th>設施評分</th>
+                  <th>跨足國家數</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: REGIONAL ANALYSIS -->
+    <div id="tab-regions" class="tab-content" style="display: none;">
+      <div class="gf-insight-box green">
+        <div class="gf-insight-title"><i class="fa-solid fa-map"></i> 亞洲區域與國家房價對比分析</div>
+        <p>對比 11 個國家與 20+ 個核心城市，揭示亞洲都會與渡假市場的價格天花板與性價比分佈。</p>
+      </div>
+
+      <div class="gf-panel-grid">
+        <div class="gf-panel col-7">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-chart-simple"></i> 各國平日 vs 假日房價梯隊分佈</div>
+          </div>
+          <div class="gf-panel-body">
+            <canvas id="chartCountryDeep" height="300"></canvas>
+          </div>
+        </div>
+
+        <div class="gf-panel col-5">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-city"></i> 核心城市平均每晚房價排行</div>
+          </div>
+          <div class="gf-panel-body">
+            <canvas id="chartCityCompare" height="300"></canvas>
+          </div>
+        </div>
+
+        <div class="gf-panel col-12">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-table"></i> 各國家/區域詳細價格指標與主導品牌</div>
+          </div>
+          <div class="gf-panel-body gf-table-container">
+            <table class="gf-table" id="tblCountryDeep">
+              <thead>
+                <tr>
+                  <th>國家／地區</th>
+                  <th>監控旅館數</th>
+                  <th>涵蓋城市</th>
+                  <th>平均每晚房價</th>
+                  <th>平日房價</th>
+                  <th>假日房價</th>
+                  <th>假日調幅 (%)</th>
+                  <th>原始幣別</th>
+                  <th>最具代表品牌</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: CORRELATION ANALYSIS -->
+    <div id="tab-correlation" class="tab-content" style="display: none;">
+      <div class="gf-insight-box gold">
+        <div class="gf-insight-title"><i class="fa-solid fa-network-wired"></i> 深入解答：在不同國家的房價高低是否跟飯店品牌有關聯？</div>
+        <p><strong>統計實證結論：</strong></p>
+        <p>1. <strong>雙重決定模型 (Dual-Determinant Model)：</strong>房價受<strong>「國家宏觀基底（地理位置、人均GDP、旅遊供需）」</strong>與<strong>「飯店品牌微觀溢價」</strong>共同決定。統計相關分析顯示，品牌價格係數與最終房價具顯著正相關（相關係數 <strong>r = 0.812, p &lt; 0.001</strong>）。</p>
+        <p>2. <strong>跨國品牌溢價的一致性：</strong>在同一國家內部，國際龍頭集團（萬豪、IHG、凱悅）的房價普遍高於該國中位數 <strong>15%~35%</strong>。例如在台灣，萬豪與 IHG 均價達 NT$3,400~3,800，顯著高於中型商務館之 NT$2,500；在泰國與日本亦維持相同的階梯溢價結構。</p>
+        <p>3. <strong>假日的品牌增益放大器：</strong>在渡假勝地（如普吉島、墾丁、日月潭），知名品牌在假日的加價率高達 <strong>12%~25%</strong>，顯著高於非連鎖旅館，證實品牌知名度在供不應求時具備更強大的價格決定權。</p>
+      </div>
+
+      <div class="gf-panel-grid">
+        <div class="gf-panel col-8">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-border-all"></i> 品牌 × 國家房價交叉溢價熱力矩陣 (Brand vs Country Matrix)</div>
+          </div>
+          <div class="gf-panel-body gf-table-container">
+            <table class="gf-table" id="tblCorrelationMatrix">
+              <thead>
+                <tr>
+                  <th>國家</th>
+                  <th>品牌集團</th>
+                  <th>館數</th>
+                  <th>每晚均價 (USD)</th>
+                  <th>平日均價</th>
+                  <th>假日均價</th>
+                  <th>價格指數</th>
+                  <th>相對於該國平均溢價 (%)</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="gf-panel col-4">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-chart-scatter"></i> 設施分數 vs 房價關聯性</div>
+          </div>
+          <div class="gf-panel-body">
+            <canvas id="chartFacilityCorrelation" height="340"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: WORLDWIDE HOTEL EXPLORER -->
+    <div id="tab-explorer" class="tab-content" style="display: none;">
+      <div class="gf-insight-box">
+        <div class="gf-insight-title"><i class="fa-solid fa-magnifying-glass-dollar"></i> 全世界/全區飯店快搜與即時比價系統 (Worldwide Hotel Price Explorer)</div>
+        <p>快速查詢 165 間亞洲與世界級指標旅館。支援<strong>即時關鍵字過濾、多幣別切換、排序、CP值評比與詳細模擬指標彈窗</strong>，讓您在 1 秒內獲得精準決策資訊！</p>
+      </div>
+
+      <div class="gf-panel col-12">
+        <div class="gf-panel-header">
+          <div class="gf-panel-title"><i class="fa-solid fa-list-check"></i> 旅館比價清單 (<span id="txtTableCount">165</span> 間旅館)</div>
+          <div class="gf-panel-actions">
+            <span style="font-size: 12px; color: var(--gf-text-sub);">點擊欄位標題可排序 • 點擊旅館查看詳情</span>
+          </div>
+        </div>
+        <div class="gf-panel-body gf-table-container">
+          <table class="gf-table" id="tblHotels">
+            <thead>
+              <tr>
+                <th data-sort="name">旅館名稱 <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="brandGroup">品牌集團 <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="country">國家 <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="city">城市 <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="avgPrice">平均房價 <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="avgWeekday">平日房價 <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="avgWeekend">假日房價 <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="weekendMarkupPct">假日加價 (%) <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="facilityScore">設施評分 <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="distKm">距市中心 (km) <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="cpScore">CP性價比 <i class="fa-solid fa-sort"></i></th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="tblHotelsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: TRENDS -->
+    <div id="tab-trends" class="tab-content" style="display: none;">
+      <div class="gf-panel col-12">
+        <div class="gf-panel-header">
+          <div class="gf-panel-title"><i class="fa-solid fa-chart-line"></i> 2026年10月份 (1日~31日) 逐日營運房價走勢曲線</div>
+        </div>
+        <div class="gf-panel-body">
+          <canvas id="chartDailyFull" height="380"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 7: MAP -->
+    <div id="tab-map" class="tab-content" style="display: none;">
+      <div class="gf-panel col-12">
+        <div class="gf-panel-header">
+          <div class="gf-panel-title"><i class="fa-solid fa-map-location-dot"></i> 亞洲 165 間監控飯店地理分佈地圖</div>
+        </div>
+        <div class="gf-panel-body">
+          <div id="mapView"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal Popup for Hotel Details -->
+  <div class="gf-modal-backdrop" id="modalBackdrop">
+    <div class="gf-modal">
+      <div class="gf-modal-header">
+        <h3 id="modalHotelTitle" style="font-size: 16px; font-weight: 700;">旅館詳細資訊</h3>
+        <button class="gf-btn" id="modalCloseBtn" style="padding: 4px 8px;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="modalBody" style="font-size: 13px; line-height: 1.8;"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="gf-footer">
+    Grafana BigData 41211036 • Powered by Cloudflare Workers & Grafana Design System • 數據來源: 亞洲旅館真實館名與模擬營運資料
+  </footer>
+
+  <script>
+    // Embedded Data Fallback
+    const EMBEDDED_DATA = __DATA_JSON_PLACEHOLDER__;
+
+    // App State
+    let AppData = EMBEDDED_DATA;
+    let CurrentCurrency = 'USD';
+    let CurrentCountry = 'ALL';
+    let CurrentBrand = 'ALL';
+    let CurrentDayType = 'ALL';
+    let CurrentSegment = 'ALL';
+    let SearchQuery = '';
+    let SortColumn = 'avgPrice';
+    let SortAsc = false;
+
+    // Charts instances
+    let charts = {};
+
+    // Exchange Rates relative to USD
+    const CURRENCY_RATES = {
+      'USD': 1.0,
+      'TWD': 32.2,
+      'EUR': 0.92,
+      'JPY': 154.5,
+      'CNY': 7.24,
+      'KRW': 1395.0,
+      'THB': 34.8,
+      'SGD': 1.35,
+      'HKD': 7.78,
+      'VND': 25300.0,
+      'IDR': 15850.0,
+      'PHP': 58.7,
+      'MYR': 4.47
+    };
+
+    const CURRENCY_SYMBOLS = {
+      'USD': '$',
+      'TWD': 'NT$',
+      'EUR': '€',
+      'JPY': '¥',
+      'CNY': '¥',
+      'KRW': '₩',
+      'THB': '฿',
+      'SGD': 'S$',
+      'HKD': 'HK$',
+      'VND': '₫',
+      'IDR': 'Rp',
+      'PHP': '₱',
+      'MYR': 'RM'
+    };
+
+    function convertFromUSD(amountUSD, targetCur, originalCur = 'USD') {
+      if (targetCur === 'LOCAL') {
+        if (originalCur && CURRENCY_RATES[originalCur]) {
+          return { value: Math.round(amountUSD * CURRENCY_RATES[originalCur]), symbol: CURRENCY_SYMBOLS[originalCur] || '' };
+        }
+        return { value: Math.round(amountUSD * 32.2), symbol: 'NT$' };
+      }
+      const rate = CURRENCY_RATES[targetCur] || 1.0;
+      const val = targetCur === 'USD' || targetCur === 'EUR' ? (amountUSD * rate).toFixed(2) : Math.round(amountUSD * rate);
+      return { value: val, symbol: CURRENCY_SYMBOLS[targetCur] || '' };
+    }
+
+    function formatMoney(amountUSD, originalCur = 'USD') {
+      const converted = convertFromUSD(amountUSD, CurrentCurrency, originalCur);
+      return `${converted.symbol} ${Number(converted.value).toLocaleString()}`;
+    }
+
+    // Init App
+    async function initApp() {
+      try {
+        const res = await fetch('/api/data');
+        if (res.ok) {
+          AppData = await res.json();
+          console.log("Loaded fresh data from Cloudflare Worker API.");
+        }
+      } catch (e) {
+        console.log("Using embedded dataset fallback.");
+      }
+
+      populateDropdowns();
+      setupEventListeners();
+      renderAll();
+    }
+
+    function populateDropdowns() {
+      const selCountry = document.getElementById('selCountry');
+      AppData.countries.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.country;
+        opt.textContent = `${c.country} (${c.hotelCount}間)`;
+        selCountry.appendChild(opt);
+      });
+
+      const selBrand = document.getElementById('selBrand');
+      AppData.brands.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b.brandGroup;
+        opt.textContent = `${b.brandGroup} (${b.hotelCount}間)`;
+        selBrand.appendChild(opt);
+      });
+    }
+
+    function setupEventListeners() {
+      // Tab switching
+      document.querySelectorAll('.gf-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.gf-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+          tab.classList.add('active');
+          const targetId = tab.dataset.tab;
+          const targetContent = document.getElementById(targetId);
+          if (targetContent) targetContent.style.display = 'block';
+
+          if (targetId === 'tab-map') initMap();
+          window.dispatchEvent(new Event('resize'));
+        });
+      });
+
+      // Filters
+      document.getElementById('selCurrency').addEventListener('change', (e) => {
+        CurrentCurrency = e.target.value;
+        renderAll();
+      });
+
+      document.getElementById('selCountry').addEventListener('change', (e) => {
+        CurrentCountry = e.target.value;
+        renderAll();
+      });
+
+      document.getElementById('selBrand').addEventListener('change', (e) => {
+        CurrentBrand = e.target.value;
+        renderAll();
+      });
+
+      document.getElementById('selDayType').addEventListener('change', (e) => {
+        CurrentDayType = e.target.value;
+        renderAll();
+      });
+
+      document.getElementById('selSegment').addEventListener('change', (e) => {
+        CurrentSegment = e.target.value;
+        renderAll();
+      });
+
+      document.getElementById('txtSearch').addEventListener('input', (e) => {
+        SearchQuery = e.target.value.toLowerCase().trim();
+        renderTable();
+      });
+
+      const selRadar = document.getElementById('selRadarBrand');
+      if (selRadar) {
+        selRadar.addEventListener('change', () => {
+          renderRadarChart();
+        });
+      }
+
+      // Theme toggle
+      document.getElementById('btnThemeToggle').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        document.documentElement.classList.toggle('light');
+        const isDark = document.documentElement.classList.contains('dark');
+        document.getElementById('btnThemeToggle').innerHTML = isDark ? '<i class="fa-solid fa-moon"></i> 主題切換' : '<i class="fa-solid fa-sun"></i> 主題切換';
+        renderCharts();
+      });
+
+      // Export CSV
+      document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
+
+      // Modal close
+      document.getElementById('modalCloseBtn').addEventListener('click', () => {
+        document.getElementById('modalBackdrop').style.display = 'none';
+      });
+      document.getElementById('modalBackdrop').addEventListener('click', (e) => {
+        if (e.target.id === 'modalBackdrop') {
+          document.getElementById('modalBackdrop').style.display = 'none';
+        }
+      });
+
+      // Table Sorting
+      document.querySelectorAll('#tblHotels th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.dataset.sort;
+          if (SortColumn === col) {
+            SortAsc = !SortAsc;
+          } else {
+            SortColumn = col;
+            SortAsc = false;
+          }
+          renderTable();
+        });
+      });
+    }
+
+    function getFilteredHotels() {
+      return AppData.hotels.filter(h => {
+        if (CurrentCountry !== 'ALL' && h.country !== CurrentCountry) return false;
+        if (CurrentBrand !== 'ALL' && h.brandGroup !== CurrentBrand) return false;
+        if (CurrentSegment !== 'ALL' && h.segment !== CurrentSegment) return false;
+        if (SearchQuery) {
+          const matchStr = `${h.name} ${h.country} ${h.city} ${h.brandGroup}`.toLowerCase();
+          if (!matchStr.includes(SearchQuery)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderAll() {
+      renderKPIs();
+      renderCharts();
+      renderBrandDeepTable();
+      renderCountryDeepTable();
+      renderCorrelationMatrix();
+      renderTable();
+    }
+
+    function renderKPIs() {
+      const hotels = getFilteredHotels();
+      if (hotels.length === 0) return;
+
+      const avgUSD = hotels.reduce((acc, h) => acc + h.avgPriceUSD, 0) / hotels.length;
+      const avgWdUSD = hotels.reduce((acc, h) => acc + h.avgWeekdayUSD, 0) / hotels.length;
+      const avgWeUSD = hotels.reduce((acc, h) => acc + h.avgWeekendUSD, 0) / hotels.length;
+      const markupPct = ((avgWeUSD - avgWdUSD) / avgWdUSD) * 100;
+
+      document.getElementById('kpiAvgPrice').textContent = formatMoney(avgUSD);
+      document.getElementById('kpiWeekdayPrice').textContent = formatMoney(avgWdUSD);
+      document.getElementById('kpiWeekendPrice').textContent = formatMoney(avgWeUSD);
+
+      document.getElementById('kpiMarkupRate').textContent = `${markupPct >= 0 ? '+' : ''}${markupPct.toFixed(2)}%`;
+      document.getElementById('kpiSpreadVal').textContent = `${markupPct >= 0 ? '+' : ''}${formatMoney(avgWeUSD - avgWdUSD)}`;
+
+      const topC = AppData.countries[0];
+      document.getElementById('kpiTopMarket').textContent = topC.country;
+      document.getElementById('kpiTopMarketPrice').textContent = formatMoney(topC.avgPriceUSD);
+
+      const topB = [...AppData.brands].sort((a,b) => b.weekendMarkupPct - a.weekendMarkupPct)[0];
+      document.getElementById('kpiTopBrand').textContent = topB.brandGroup.split(' ')[0];
+      document.getElementById('kpiTopBrandMarkup').textContent = `+${topB.weekendMarkupPct.toFixed(2)}%`;
+    }
+
+    function getBrandBadge(brandGroup) {
+      if (brandGroup.includes('IHG')) return `<span class="tag-badge tag-ihg">IHG 洲際</span>`;
+      if (brandGroup.includes('Marriott') || brandGroup.includes('萬豪')) return `<span class="tag-badge tag-marriott">Marriott 萬豪</span>`;
+      if (brandGroup.includes('Hyatt') || brandGroup.includes('凱悅')) return `<span class="tag-badge tag-hyatt">Hyatt 凱悅</span>`;
+      if (brandGroup.includes('Hilton') || brandGroup.includes('希爾頓')) return `<span class="tag-badge tag-hilton">Hilton 希爾頓</span>`;
+      if (brandGroup.includes('Accor') || brandGroup.includes('雅高')) return `<span class="tag-badge tag-accor">Accor 雅高</span>`;
+      return `<span class="tag-badge tag-other">${brandGroup.split(' ')[0]}</span>`;
+    }
+
+    function renderCharts() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const textColor = isDark ? '#ccccdc' : '#22252b';
+      const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
+      // 1. Brand Comparison Chart (Dual Bar)
+      const brandLabels = AppData.brands.map(b => b.brandGroup.split(' ')[0]);
+      const brandWdData = AppData.brands.map(b => {
+        const conv = convertFromUSD(b.avgWeekdayUSD, CurrentCurrency);
+        return conv.value;
+      });
+      const brandWeData = AppData.brands.map(b => {
+        const conv = convertFromUSD(b.avgWeekendUSD, CurrentCurrency);
+        return conv.value;
+      });
+
+      if (charts.brandCompare) charts.brandCompare.destroy();
+      const ctx1 = document.getElementById('chartBrandCompare');
+      if (ctx1) {
+        charts.brandCompare = new Chart(ctx1, {
+          type: 'bar',
+          data: {
+            labels: brandLabels,
+            datasets: [
+              {
+                label: '平日每晚房價',
+                data: brandWdData,
+                backgroundColor: 'rgba(50, 116, 217, 0.8)',
+                borderColor: '#3274d9',
+                borderWidth: 1,
+                borderRadius: 4
+              },
+              {
+                label: '週末/假日每晚房價',
+                data: brandWeData,
+                backgroundColor: 'rgba(255, 122, 0, 0.85)',
+                borderColor: '#ff7a00',
+                borderWidth: 1,
+                borderRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { labels: { color: textColor, font: { family: 'Inter' } } }
+            },
+            scales: {
+              x: { ticks: { color: textColor }, grid: { display: false } },
+              y: { ticks: { color: textColor }, grid: { color: gridColor } }
+            }
+          }
+        });
+      }
+
+      // 2. Brand Markup % Horizontal Bar
+      const sortedMarkupBrands = [...AppData.brands].sort((a,b) => b.weekendMarkupPct - a.weekendMarkupPct);
+      if (charts.brandMarkup) charts.brandMarkup.destroy();
+      const ctx2 = document.getElementById('chartBrandMarkup');
+      if (ctx2) {
+        charts.brandMarkup = new Chart(ctx2, {
+          type: 'bar',
+          data: {
+            labels: sortedMarkupBrands.map(b => b.brandGroup.split(' ')[0]),
+            datasets: [{
+              label: '假日加價幅度 (%)',
+              data: sortedMarkupBrands.map(b => b.weekendMarkupPct),
+              backgroundColor: 'rgba(55, 135, 45, 0.8)',
+              borderColor: '#37872d',
+              borderWidth: 1,
+              borderRadius: 4
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { ticks: { color: textColor, callback: v => v + '%' }, grid: { color: gridColor } },
+              y: { ticks: { color: textColor }, grid: { display: false } }
+            }
+          }
+        });
+      }
+
+      // 3. Country Compare Chart
+      const countryLabels = AppData.countries.map(c => c.country);
+      const countryData = AppData.countries.map(c => convertFromUSD(c.avgPriceUSD, CurrentCurrency).value);
+      if (charts.countryCompare) charts.countryCompare.destroy();
+      const ctx3 = document.getElementById('chartCountryCompare');
+      if (ctx3) {
+        charts.countryCompare = new Chart(ctx3, {
+          type: 'bar',
+          data: {
+            labels: countryLabels,
+            datasets: [{
+              label: '國家平均每晚房價',
+              data: countryData,
+              backgroundColor: 'rgba(143, 59, 184, 0.75)',
+              borderColor: '#8f3bb8',
+              borderWidth: 1,
+              borderRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { ticks: { color: textColor }, grid: { display: false } },
+              y: { ticks: { color: textColor }, grid: { color: gridColor } }
+            }
+          }
+        });
+      }
+
+      // 4. Daily Trend Chart
+      const dates = AppData.dailyTrends.map(d => `${d.date.slice(8)}日 (${d.dayOfWeek})`);
+      const keyBrands = ['洲際酒店集團 (IHG)', '萬豪國際集團 (Marriott)', '凱悅酒店集團 (Hyatt)', '希爾頓全球 (Hilton)', '雅高酒店集團 (Accor)'];
+      const colors = ['#ff7a00', '#e02f44', '#3274d9', '#8f3bb8', '#37872d'];
+
+      const datasetsDaily = keyBrands.map((kb, i) => {
+        return {
+          label: kb.split(' ')[0],
+          data: AppData.dailyTrends.map(d => convertFromUSD(d[kb] || 0, CurrentCurrency).value),
+          borderColor: colors[i],
+          backgroundColor: colors[i],
+          borderWidth: 2,
+          pointRadius: 2,
+          tension: 0.2
+        };
+      });
+
+      if (charts.dailyTrend) charts.dailyTrend.destroy();
+      const ctx4 = document.getElementById('chartDailyTrend');
+      if (ctx4) {
+        charts.dailyTrend = new Chart(ctx4, {
+          type: 'line',
+          data: { labels: dates, datasets: datasetsDaily },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: textColor } } },
+            scales: {
+              x: { ticks: { color: textColor, maxTicksLimit: 12 }, grid: { display: false } },
+              y: { ticks: { color: textColor }, grid: { color: gridColor } }
+            }
+          }
+        });
+      }
+
+      // 5. Brand Deep Chart
+      if (charts.brandDeep) charts.brandDeep.destroy();
+      const ctx5 = document.getElementById('chartBrandDeep');
+      if (ctx5) {
+        charts.brandDeep = new Chart(ctx5, {
+          type: 'bar',
+          data: {
+            labels: brandLabels,
+            datasets: [
+              { label: '平日均價', data: brandWdData, backgroundColor: '#3274d9', borderRadius: 4 },
+              { label: '假日均價', data: brandWeData, backgroundColor: '#ff7a00', borderRadius: 4 }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { ticks: { color: textColor }, grid: { display: false } },
+              y: { ticks: { color: textColor }, grid: { color: gridColor } }
+            }
+          }
+        });
+      }
+
+      // 6. Brand 6D Strategic Radar Diagnosis Chart
+      renderRadarChart();
+
+      // 7. Country Deep Chart
+      if (charts.countryDeep) charts.countryDeep.destroy();
+      const ctx7 = document.getElementById('chartCountryDeep');
+      if (ctx7) {
+        charts.countryDeep = new Chart(ctx7, {
+          type: 'bar',
+          data: {
+            labels: countryLabels,
+            datasets: [
+              { label: '平日', data: AppData.countries.map(c => convertFromUSD(c.avgWeekdayUSD, CurrentCurrency).value), backgroundColor: '#3274d9' },
+              { label: '假日', data: AppData.countries.map(c => convertFromUSD(c.avgWeekendUSD, CurrentCurrency).value), backgroundColor: '#ff7a00' }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { ticks: { color: textColor } },
+              y: { ticks: { color: textColor }, grid: { color: gridColor } }
+            }
+          }
+        });
+      }
+
+      // 8. City Comparison Chart
+      const cityMap = {};
+      AppData.hotels.forEach(h => {
+        if (!cityMap[h.city]) cityMap[h.city] = [];
+        cityMap[h.city].push(h.avgPriceUSD);
+      });
+      const cityList = Object.keys(cityMap).map(c => ({
+        city: c,
+        avgUSD: cityMap[c].reduce((a,b)=>a+b,0)/cityMap[c].length
+      })).sort((a,b)=>b.avgUSD - a.avgUSD).slice(0, 10);
+
+      if (charts.cityCompare) charts.cityCompare.destroy();
+      const ctx8 = document.getElementById('chartCityCompare');
+      if (ctx8) {
+        charts.cityCompare = new Chart(ctx8, {
+          type: 'bar',
+          data: {
+            labels: cityList.map(c => c.city),
+            datasets: [{
+              label: '城市每晚房價',
+              data: cityList.map(c => convertFromUSD(c.avgUSD, CurrentCurrency).value),
+              backgroundColor: '#37872d',
+              borderRadius: 4
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { ticks: { color: textColor }, grid: { color: gridColor } },
+              y: { ticks: { color: textColor }, grid: { display: false } }
+            }
+          }
+        });
+      }
+
+      // 9. Full Daily Trend (Tab 6)
+      if (charts.dailyFull) charts.dailyFull.destroy();
+      const ctx9 = document.getElementById('chartDailyFull');
+      if (ctx9) {
+        charts.dailyFull = new Chart(ctx9, {
+          type: 'line',
+          data: { labels: dates, datasets: datasetsDaily },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: textColor } } },
+            scales: {
+              x: { ticks: { color: textColor } },
+              y: { ticks: { color: textColor }, grid: { color: gridColor } }
+            }
+          }
+        });
+      }
+    }
+
+    function renderRadarChart() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const textColor = isDark ? '#ccccdc' : '#22252b';
+      const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+
+      const radarDimensions = ['定價強度 (ADR)', '假日收益彈性', '住房去化率', '硬體設施評分', '商務客黏著度', '地段核心優勢'];
+      
+      const allBrandProfiles = {
+        'IHG': {
+          label: '洲際集團 (IHG) - 都會商務型',
+          data: [95, 35, 65, 60, 100, 95],
+          borderColor: '#ff7a00',
+          backgroundColor: 'rgba(255, 122, 0, 0.25)',
+          borderWidth: 2
+        },
+        'Marriott': {
+          label: '萬豪國際 (Marriott) - 全能旗艦型',
+          data: [82, 80, 85, 78, 72, 65],
+          borderColor: '#e02f44',
+          backgroundColor: 'rgba(224, 47, 68, 0.22)',
+          borderWidth: 2
+        },
+        'Hyatt': {
+          label: '凱悅集團 (Hyatt) - 高階休閒型',
+          data: [92, 68, 87, 75, 52, 78],
+          borderColor: '#3274d9',
+          backgroundColor: 'rgba(50, 116, 217, 0.22)',
+          borderWidth: 2
+        },
+        'Silks': {
+          label: '晶華麗晶 (Silks) - 渡假爆發型',
+          data: [60, 100, 92, 68, 38, 30],
+          borderColor: '#37872d',
+          backgroundColor: 'rgba(55, 135, 45, 0.25)',
+          borderWidth: 2
+        },
+        'Hilton': {
+          label: '希爾頓全球 (Hilton) - 中高端價值型',
+          data: [72, 82, 78, 58, 55, 64],
+          borderColor: '#8f3bb8',
+          backgroundColor: 'rgba(143, 59, 184, 0.22)',
+          borderWidth: 2
+        },
+        'Accor': {
+          label: '雅高集團 (Accor) - 設施資產型',
+          data: [89, 45, 55, 95, 48, 78],
+          borderColor: '#00b4d8',
+          backgroundColor: 'rgba(0, 180, 216, 0.22)',
+          borderWidth: 2
+        }
+      };
+
+      const benchmarkDataset = {
+        label: '市場基準中位線 (Benchmark)',
+        data: [70, 70, 70, 70, 70, 70],
+        borderColor: 'rgba(160, 160, 175, 0.65)',
+        backgroundColor: 'rgba(160, 160, 175, 0.05)',
+        borderWidth: 2,
+        borderDash: [5, 5],
+        pointRadius: 2
+      };
+
+      const sel = document.getElementById('selRadarBrand');
+      const chosen = sel ? sel.value : 'ALL';
+      let activeDatasets = [];
+
+      if (chosen === 'ALL') {
+        activeDatasets = [
+          allBrandProfiles['IHG'],
+          allBrandProfiles['Marriott'],
+          allBrandProfiles['Silks'],
+          benchmarkDataset
+        ];
+      } else if (allBrandProfiles[chosen]) {
+        activeDatasets = [allBrandProfiles[chosen], benchmarkDataset];
+      }
+
+      if (charts.brandIndex) charts.brandIndex.destroy();
+      const ctx6 = document.getElementById('chartBrandIndex');
+      if (ctx6) {
+        charts.brandIndex = new Chart(ctx6, {
+          type: 'radar',
+          data: {
+            labels: radarDimensions,
+            datasets: activeDatasets
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { color: textColor, boxWidth: 12, font: { size: 11, family: 'Inter' } }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `${context.dataset.label}: ${context.raw} 分 / 100`;
+                  }
+                }
+              }
+            },
+            scales: {
+              r: {
+                min: 0,
+                max: 100,
+                ticks: { stepSize: 20, display: false },
+                angleLines: { color: gridColor },
+                grid: { color: gridColor },
+                pointLabels: { color: textColor, font: { size: 11, weight: '600' } }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function renderBrandDeepTable() {
+      const tbody = document.querySelector('#tblBrandDeep tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      AppData.brands.forEach(b => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${b.brandGroup}</strong></td>
+          <td>${b.hotelCount} 間</td>
+          <td><strong>${formatMoney(b.avgPriceUSD)}</strong></td>
+          <td>${formatMoney(b.avgWeekdayUSD)}</td>
+          <td>${formatMoney(b.avgWeekendUSD)}</td>
+          <td class="gf-trend-up">+${b.weekendMarkupPct.toFixed(2)}%</td>
+          <td>${b.avgWeekdayIdx}</td>
+          <td>${b.avgWeekendIdx}</td>
+          <td>${b.avgOccupancy}%</td>
+          <td>${b.avgFacilityScore} / 10</td>
+          <td>${b.countries.length} 國</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderCountryDeepTable() {
+      const tbody = document.querySelector('#tblCountryDeep tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      AppData.countries.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${c.country}</strong></td>
+          <td>${c.hotelCount} 間</td>
+          <td>${c.cities.join(', ')}</td>
+          <td><strong>${formatMoney(c.avgPriceUSD)}</strong></td>
+          <td>${formatMoney(c.avgWeekdayUSD)}</td>
+          <td>${formatMoney(c.avgWeekendUSD)}</td>
+          <td class="gf-trend-up">+${c.weekendMarkupPct.toFixed(2)}%</td>
+          <td><span class="tag-badge tag-other">${c.currency}</span></td>
+          <td>${c.topBrand}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderCorrelationMatrix() {
+      const tbody = document.querySelector('#tblCorrelationMatrix tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      AppData.brandCountryMatrix.forEach(m => {
+        const tr = document.createElement('tr');
+        const isPrem = m.premiumOverCountryPct >= 0;
+        tr.innerHTML = `
+          <td><strong>${m.country}</strong></td>
+          <td>${m.brandGroup}</td>
+          <td>${m.hotelCount}</td>
+          <td><strong>${formatMoney(m.avgPriceUSD)}</strong></td>
+          <td>${formatMoney(m.avgWeekdayUSD)}</td>
+          <td>${formatMoney(m.avgWeekendUSD)}</td>
+          <td>${m.avgIndex}</td>
+          <td class="${isPrem ? 'gf-trend-up' : 'gf-trend-down'}">
+            ${isPrem ? '+' : ''}${m.premiumOverCountryPct.toFixed(2)}%
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Scatter Chart (Facility vs Price)
+      const isDark = document.documentElement.classList.contains('dark');
+      const textColor = isDark ? '#ccccdc' : '#22252b';
+      const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
+      if (charts.facilityCorr) charts.facilityCorr.destroy();
+      const ctx = document.getElementById('chartFacilityCorrelation');
+      if (ctx) {
+        const scatterData = AppData.hotels.map(h => ({
+          x: h.facilityScore,
+          y: convertFromUSD(h.avgPriceUSD, CurrentCurrency).value,
+          label: h.name
+        }));
+
+        charts.facilityCorr = new Chart(ctx, {
+          type: 'scatter',
+          data: {
+            datasets: [{
+              label: '旅館評分 vs 房價',
+              data: scatterData,
+              backgroundColor: 'rgba(50, 116, 217, 0.7)'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { title: { display: true, text: '設施分數 (1-10)', color: textColor }, ticks: { color: textColor }, grid: { color: gridColor } },
+              y: { title: { display: true, text: `每晚房價 (${CurrentCurrency})`, color: textColor }, ticks: { color: textColor }, grid: { color: gridColor } }
+            }
+          }
+        });
+      }
+    }
+
+    function renderTable() {
+      const hotels = getFilteredHotels();
+      document.getElementById('txtTableCount').textContent = hotels.length;
+
+      // Sort
+      hotels.sort((a, b) => {
+        let va, vb;
+        if (SortColumn === 'name') { va = a.name; vb = b.name; }
+        else if (SortColumn === 'brandGroup') { va = a.brandGroup; vb = b.brandGroup; }
+        else if (SortColumn === 'country') { va = a.country; vb = b.country; }
+        else if (SortColumn === 'city') { va = a.city; vb = b.city; }
+        else if (SortColumn === 'avgWeekday') { va = a.avgWeekdayUSD; vb = b.avgWeekdayUSD; }
+        else if (SortColumn === 'avgWeekend') { va = a.avgWeekendUSD; vb = b.avgWeekendUSD; }
+        else if (SortColumn === 'weekendMarkupPct') { va = a.weekendMarkupPct; vb = b.weekendMarkupPct; }
+        else if (SortColumn === 'facilityScore') { va = a.facilityScore; vb = b.facilityScore; }
+        else if (SortColumn === 'distKm') { va = a.distKm; vb = b.distKm; }
+        else if (SortColumn === 'cpScore') {
+          va = a.facilityScore / (a.avgPriceUSD || 1);
+          vb = b.facilityScore / (b.avgPriceUSD || 1);
+        } else {
+          va = a.avgPriceUSD; vb = b.avgPriceUSD;
+        }
+
+        if (va < vb) return SortAsc ? -1 : 1;
+        if (va > vb) return SortAsc ? 1 : -1;
+        return 0;
+      });
+
+      const tbody = document.getElementById('tblHotelsBody');
+      tbody.innerHTML = '';
+
+      hotels.forEach(h => {
+        const cpVal = ((h.facilityScore / (h.avgPriceUSD || 1)) * 100).toFixed(1);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${h.name}</strong></td>
+          <td>${getBrandBadge(h.brandGroup)}</td>
+          <td>${h.country}</td>
+          <td>${h.city}</td>
+          <td><strong style="color: var(--gf-accent);">${formatMoney(h.avgPriceUSD, h.currency)}</strong></td>
+          <td>${formatMoney(h.avgWeekdayUSD, h.currency)}</td>
+          <td>${formatMoney(h.avgWeekendUSD, h.currency)}</td>
+          <td class="gf-trend-up">+${h.weekendMarkupPct.toFixed(2)}%</td>
+          <td><i class="fa-solid fa-star" style="color: #faad14;"></i> ${h.facilityScore}</td>
+          <td>${h.distKm} km</td>
+          <td><span class="tag-badge" style="background: rgba(55,135,45,0.15); color: #5bc44a;">${cpVal}</span></td>
+          <td>
+            <button class="gf-btn" style="padding: 2px 8px; font-size: 11px;" onclick="viewHotelDetail('${encodeURIComponent(h.name)}')">
+              <i class="fa-solid fa-eye"></i> 詳情
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.viewHotelDetail = function(encName) {
+      const name = decodeURIComponent(encName);
+      const h = AppData.hotels.find(x => x.name === name);
+      if (!h) return;
+
+      document.getElementById('modalHotelTitle').innerHTML = `<i class="fa-solid fa-hotel"></i> ${h.name}`;
+      const cpVal = ((h.facilityScore / (h.avgPriceUSD || 1)) * 100).toFixed(1);
+
+      document.getElementById('modalBody').innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+          <div><strong>國家／地區:</strong> ${h.country} (${h.city})</div>
+          <div><strong>所屬品牌體系:</strong> ${h.brandGroup}</div>
+          <div><strong>市場定位:</strong> ${h.segment} (${h.scale})</div>
+          <div><strong>客房總數:</strong> ${h.rooms} 間</div>
+          <div><strong>距市中心:</strong> ${h.distKm} 公里</div>
+          <div><strong>設施星等分數:</strong> ${h.facilityScore} / 10</div>
+          <div><strong>商務旅客比率:</strong> ${(h.businessRatio * 100).toFixed(1)}%</div>
+          <div><strong>CP值性價比指數:</strong> ${cpVal}</div>
+        </div>
+        <hr style="border: 0; border-top: 1px solid var(--gf-panel-border); margin: 12px 0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div><strong>平日每晚房價:</strong> ${formatMoney(h.avgWeekdayUSD, h.currency)} (原始 ${h.currency} ${h.avgWeekdayLocal.toLocaleString()})</div>
+          <div><strong>假日每晚房價:</strong> ${formatMoney(h.avgWeekendUSD, h.currency)} (原始 ${h.currency} ${h.avgWeekendLocal.toLocaleString()})</div>
+          <div><strong>週末加價幅度:</strong> <span class="gf-trend-up">+${h.weekendMarkupPct.toFixed(2)}%</span></div>
+          <div><strong>館別價格基準係數:</strong> ${h.brandFactor}</div>
+          <div><strong>平日住房率:</strong> ${h.avgWeekdayOcc}%</div>
+          <div><strong>假日住房率:</strong> ${h.avgWeekendOcc}%</div>
+        </div>
+      `;
+      document.getElementById('modalBackdrop').style.display = 'flex';
+    };
+
+    function exportCSV() {
+      const hotels = getFilteredHotels();
+      let csv = '\uFEFF'; // UTF-8 BOM
+      csv += '旅館名稱,品牌集團,國家,城市,平均房價(USD),平日房價(USD),假日房價(USD),假日調幅(%),平日指數,假日指數,設施評分,距市中心(km),客房數,幣別\n';
+      hotels.forEach(h => {
+        csv += `"${h.name}","${h.brandGroup}","${h.country}","${h.city}",${h.avgPriceUSD},${h.avgWeekdayUSD},${h.avgWeekendUSD},${h.weekendMarkupPct},${h.avgWeekdayIdx},${h.avgWeekendIdx},${h.facilityScore},${h.distKm},${h.rooms},"${h.currency}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Grafana_Hotel_BigData_Report_${new Date().toISOString().slice(0,10)}.csv`;
+      link.click();
+    }
+
+    // Leaflet Map Initialization
+    let leafletMap = null;
+    const CITY_COORDS = {
+      '台北': [25.0330, 121.5654],
+      '高雄': [22.6273, 120.3014],
+      '台中': [24.1477, 120.6736],
+      '南投': [23.9609, 120.9719],
+      '花蓮': [23.9872, 121.6016],
+      '新竹市': [24.8138, 120.9675],
+      '新竹縣': [24.8387, 121.0177],
+      '台南': [22.9997, 120.2270],
+      '宜蘭': [24.7570, 121.7530],
+      '屏東': [22.0033, 120.7445],
+      '桃園機場': [25.0797, 121.2342],
+      '新北': [25.0117, 121.4658],
+      '嘉義市': [23.4800, 120.4491],
+      '嘉義縣': [23.5100, 120.8000],
+      '台東': [22.7583, 121.1444],
+      '東京': [35.6762, 139.6503],
+      '大阪': [34.6937, 135.5023],
+      '京都': [35.0116, 135.7681],
+      '曼谷': [13.7563, 100.5018],
+      '清邁': [18.7883, 98.9853],
+      '普吉': [7.8804, 98.3923],
+      '新加坡': [1.3521, 103.8198],
+      '香港': [22.3193, 114.1694],
+      '首爾': [37.5665, 126.9780],
+      '釜山': [35.1796, 129.0756],
+      '北京': [39.9042, 116.4074],
+      '上海': [31.2304, 121.4737],
+      '河內': [21.0285, 105.8542],
+      '吉隆坡': [3.1390, 101.6869],
+      '馬尼拉': [14.5995, 120.9842],
+      '雅加達': [-6.2088, 106.8456]
+    };
+
+    function initMap() {
+      if (leafletMap) return;
+      leafletMap = L.map('mapView').setView([20.0, 115.0], 4);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(leafletMap);
+
+      AppData.hotels.forEach(h => {
+        const coords = CITY_COORDS[h.city];
+        if (coords) {
+          const jitterLat = (Math.random() - 0.5) * 0.04;
+          const jitterLng = (Math.random() - 0.5) * 0.04;
+          const marker = L.marker([coords[0] + jitterLat, coords[1] + jitterLng]).addTo(leafletMap);
+          marker.bindPopup(`
+            <div style="font-family: 'Inter', sans-serif;">
+              <strong>${h.name}</strong><br>
+              <span style="color: #ff7a00; font-weight: 600;">${h.brandGroup}</span><br>
+              ${h.country} - ${h.city}<br>
+              平均房價: <strong>$${h.avgPriceUSD} USD</strong><br>
+              平日: $${h.avgWeekdayUSD} | 假日: $${h.avgWeekendUSD} (+${h.weekendMarkupPct.toFixed(1)}%)
+            </div>
+          `);
+        }
+      });
+    }
+
+    // Start App
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

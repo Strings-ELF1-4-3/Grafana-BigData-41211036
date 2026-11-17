@@ -1,0 +1,7 @@
+name = "grafana-bigdata-41211036"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+PLATFORM_NAME = "Grafana BigData 41211036"
+VERSION = "2.1.0"
