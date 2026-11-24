@@ -48,6 +48,7 @@
       --gf-input-border: #c7cbd1;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       font-family: 'Inter', 'Noto Sans TC', sans-serif;
       background-color: var(--gf-bg);
@@ -149,6 +150,10 @@
       flex-wrap: wrap;
       align-items: center;
       gap: 16px;
+      position: sticky;
+      top: 55px;
+      z-index: 990;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
     .gf-filter-item {
       display: flex;
@@ -175,38 +180,57 @@
     .gf-select:focus, .gf-input:focus {
       border-color: var(--gf-accent-blue);
     }
-    /* Navigation Tabs */
-    .gf-tabs {
+    /* Quick Section Jump Navigation Bar */
+    .gf-quicknav {
       background-color: var(--gf-header-bg);
       border-bottom: 1px solid var(--gf-panel-border);
-      padding: 0 24px;
+      padding: 8px 24px;
       display: flex;
-      gap: 20px;
+      gap: 10px;
       overflow-x: auto;
-    }
-    .gf-tab {
-      padding: 12px 4px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--gf-text-sub);
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
       white-space: nowrap;
     }
-    .gf-tab:hover {
-      color: var(--gf-text-main);
+    .gf-nav-pill {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gf-text-sub);
+      background: var(--gf-panel-bg);
+      border: 1px solid var(--gf-panel-border);
+      border-radius: 20px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      cursor: pointer;
     }
-    .gf-tab.active {
-      color: var(--gf-accent);
-      border-bottom-color: var(--gf-accent);
+    .gf-nav-pill:hover, .gf-nav-pill.active {
+      color: white;
+      background: var(--gf-accent-blue);
+      border-color: var(--gf-accent-blue);
+    }
+    /* Section Headers */
+    .gf-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 36px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--gf-panel-border);
+    }
+    .gf-section-header h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gf-text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     /* Main Layout */
     .gf-main {
-      padding: 20px 24px;
+      padding: 20px 24px 60px;
       flex: 1;
       max-width: 1700px;
       width: 100%;
@@ -217,7 +241,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
     .gf-kpi-card {
       background-color: var(--gf-panel-bg);
@@ -441,7 +465,7 @@
     <div class="gf-brand">
       <div class="gf-logo"><i class="fa-solid fa-chart-line"></i></div>
       <div class="gf-title">
-        <h1>Grafana BigData 41211036 <span class="gf-badge-tag">v2.1 Production</span></h1>
+        <h1>Grafana BigData 41211036 <span class="gf-badge-tag">v2.1 Unified Dashboard</span></h1>
         <div class="gf-subtitle">亞洲旅館真實館名與模擬營運大數據視覺化分析平台 • 全球即時比價系統</div>
       </div>
     </div>
@@ -506,150 +530,119 @@
     </div>
   </div>
 
-  <!-- Navigation Tabs -->
-  <div class="gf-tabs">
-    <div class="gf-tab active" data-tab="tab-overview"><i class="fa-solid fa-gauge-high"></i> 總覽營運看板</div>
-    <div class="gf-tab" data-tab="tab-brands"><i class="fa-solid fa-hotel"></i> 品牌平日 vs 假日房價深度分析</div>
-    <div class="gf-tab" data-tab="tab-regions"><i class="fa-solid fa-globe"></i> 各區域/國家房價對比</div>
-    <div class="gf-tab" data-tab="tab-correlation"><i class="fa-solid fa-project-diagram"></i> 品牌與各國房價關聯性分析</div>
-    <div class="gf-tab" data-tab="tab-explorer"><i class="fa-solid fa-table-list"></i> 全球/全區飯店快搜比價表</div>
-    <div class="gf-tab" data-tab="tab-trends"><i class="fa-solid fa-chart-line"></i> 31天模擬走勢波形</div>
-    <div class="gf-tab" data-tab="tab-map"><i class="fa-solid fa-map-location-dot"></i> 飯店地理地圖</div>
-  </div>
+  <!-- Quick Section Jump Navigation Bar -->
+  <nav class="gf-quicknav">
+    <a class="gf-nav-pill" href="#sec-kpi"><i class="fa-solid fa-gauge-high"></i> 總覽指標</a>
+    <a class="gf-nav-pill active" href="#sec-brands"><i class="fa-solid fa-hotel"></i> 品牌與六維雷達診斷</a>
+    <a class="gf-nav-pill" href="#sec-regions"><i class="fa-solid fa-globe"></i> 區域與城市對比</a>
+    <a class="gf-nav-pill" href="#sec-correlation"><i class="fa-solid fa-project-diagram"></i> 品牌與各國關聯性</a>
+    <a class="gf-nav-pill" href="#sec-trends"><i class="fa-solid fa-chart-line"></i> 31天走勢波形</a>
+    <a class="gf-nav-pill" href="#sec-map"><i class="fa-solid fa-map-location-dot"></i> 飯店地理地圖</a>
+    <a class="gf-nav-pill" href="#sec-explorer"><i class="fa-solid fa-table-list"></i> 全球飯店比價表</a>
+  </nav>
 
-  <!-- Main Content Area -->
+  <!-- Main Content Area (Unified Single Page) -->
   <main class="gf-main">
     
-    <!-- Executive KPI Row -->
-    <div class="gf-kpi-grid">
-      <div class="gf-kpi-card orange">
-        <div class="gf-kpi-title">
-          <span>全區平均每晚房價</span>
-          <i class="fa-solid fa-tag"></i>
-        </div>
-        <div class="gf-kpi-value" id="kpiAvgPrice">$103.45</div>
-        <div class="gf-kpi-sub">
-          <span>平日 <strong id="kpiWeekdayPrice">$100.80</strong></span>
-          <span>|</span>
-          <span>假日 <strong id="kpiWeekendPrice">$106.10</strong></span>
-        </div>
-      </div>
-
-      <div class="gf-kpi-card green">
-        <div class="gf-kpi-title">
-          <span>週末與假日平均加價率</span>
-          <i class="fa-solid fa-arrow-trend-up"></i>
-        </div>
-        <div class="gf-kpi-value gf-trend-up" id="kpiMarkupRate">+5.25%</div>
-        <div class="gf-kpi-sub">
-          <span>假日平均每晚調幅</span>
-          <span class="gf-trend-up" id="kpiSpreadVal">+$5.30</span>
-        </div>
-      </div>
-
-      <div class="gf-kpi-card">
-        <div class="gf-kpi-title">
-          <span>最高均價市場</span>
-          <i class="fa-solid fa-trophy"></i>
-        </div>
-        <div class="gf-kpi-value" id="kpiTopMarket">新加坡</div>
-        <div class="gf-kpi-sub">
-          <span>平均每晚房價</span>
-          <strong id="kpiTopMarketPrice">$151.53 USD</strong>
-        </div>
-      </div>
-
-      <div class="gf-kpi-card purple">
-        <div class="gf-kpi-title">
-          <span>品牌最高溢價率</span>
-          <i class="fa-solid fa-crown"></i>
-        </div>
-        <div class="gf-kpi-value" id="kpiTopBrand">晶華麗晶 / 萬豪</div>
-        <div class="gf-kpi-sub">
-          <span>假日調幅高達</span>
-          <strong class="gf-trend-up" id="kpiTopBrandMarkup">+6.91%</strong>
-        </div>
-      </div>
-
-      <div class="gf-kpi-card red">
-        <div class="gf-kpi-title">
-          <span>分析數據規模</span>
-          <i class="fa-solid fa-database"></i>
-        </div>
-        <div class="gf-kpi-value" id="kpiTotalRecords">80,848</div>
-        <div class="gf-kpi-sub">
-          <span>涵蓋 <strong>165</strong> 家真實旅館 • <strong>2,608</strong> 模擬情境</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 1: OVERVIEW DASHBOARD -->
-    <div id="tab-overview" class="tab-content active">
+    <!-- SECTION 0: KPI & EXECUTIVE SUMMARY -->
+    <section id="sec-kpi">
       <div class="gf-insight-box gold">
         <div class="gf-insight-title"><i class="fa-solid fa-lightbulb"></i> 大數據分析核心結論摘要 (Executive Summary)</div>
         <p><strong>1. 平日與假日房價規律：</strong>各大國際品牌在平日與假日均展現結構性價差，整體亞洲市場週末假日平均調幅為 <strong>+5.25%</strong>。其中休閒渡假品牌（如晶華麗晶體系 +6.91%、希爾頓 +5.94%、萬豪 +5.68%）在假日價格彈性顯著高於純商務市場。</p>
         <p><strong>2. 品牌與國家房價關聯性：</strong>國家的基礎經濟與旅遊門檻（Market Baseline）決定房價底線（新加坡均價 $151.5 USD 最高，印尼 $58.2 USD 最親民）；然而<strong>品牌溢價效應（Brand Premium）跨國界高度成立</strong>，跨國巨頭（IHG、萬豪、凱悅）在各國均享有高於市場基價 15%~30% 的溢價能力。</p>
       </div>
 
+      <!-- Executive KPI Row -->
+      <div class="gf-kpi-grid">
+        <div class="gf-kpi-card orange">
+          <div class="gf-kpi-title">
+            <span>全區平均每晚房價</span>
+            <i class="fa-solid fa-tag"></i>
+          </div>
+          <div class="gf-kpi-value" id="kpiAvgPrice">$103.45</div>
+          <div class="gf-kpi-sub">
+            <span>平日 <strong id="kpiWeekdayPrice">$100.80</strong></span>
+            <span>|</span>
+            <span>假日 <strong id="kpiWeekendPrice">$106.10</strong></span>
+          </div>
+        </div>
+
+        <div class="gf-kpi-card green">
+          <div class="gf-kpi-title">
+            <span>週末與假日平均加價率</span>
+            <i class="fa-solid fa-arrow-trend-up"></i>
+          </div>
+          <div class="gf-kpi-value gf-trend-up" id="kpiMarkupRate">+5.25%</div>
+          <div class="gf-kpi-sub">
+            <span>假日平均每晚調幅</span>
+            <span class="gf-trend-up" id="kpiSpreadVal">+$5.30</span>
+          </div>
+        </div>
+
+        <div class="gf-kpi-card">
+          <div class="gf-kpi-title">
+            <span>最高均價市場</span>
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <div class="gf-kpi-value" id="kpiTopMarket">新加坡</div>
+          <div class="gf-kpi-sub">
+            <span>平均每晚房價</span>
+            <strong id="kpiTopMarketPrice">$151.53 USD</strong>
+          </div>
+        </div>
+
+        <div class="gf-kpi-card purple">
+          <div class="gf-kpi-title">
+            <span>品牌最高溢價率</span>
+            <i class="fa-solid fa-crown"></i>
+          </div>
+          <div class="gf-kpi-value" id="kpiTopBrand">晶華麗晶 / 萬豪</div>
+          <div class="gf-kpi-sub">
+            <span>假日調幅高達</span>
+            <strong class="gf-trend-up" id="kpiTopBrandMarkup">+6.91%</strong>
+          </div>
+        </div>
+
+        <div class="gf-kpi-card red">
+          <div class="gf-kpi-title">
+            <span>分析數據規模</span>
+            <i class="fa-solid fa-database"></i>
+          </div>
+          <div class="gf-kpi-value" id="kpiTotalRecords">80,848</div>
+          <div class="gf-kpi-sub">
+            <span>涵蓋 <strong>165</strong> 家真實旅館 • <strong>2,608</strong> 模擬情境</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: BRANDS ANALYSIS & 6D RADAR DIAGNOSIS -->
+    <section id="sec-brands">
+      <div class="gf-section-header">
+        <h2><i class="fa-solid fa-hotel" style="color: var(--gf-accent);"></i> 1. 亞洲主要飯店品牌平日 vs 假日房價分析 & 🎯 六維營運基因雷達診斷</h2>
+        <span class="gf-badge-tag">Brand & 6D Radar Diagnosis</span>
+      </div>
+
+      <div class="gf-insight-box">
+        <div class="gf-insight-title"><i class="fa-solid fa-circle-info"></i> 深入比較 IHG、萬豪、凱悅、希爾頓、雅高與晶華體系之平日與假日定價彈性</div>
+        <p>為解決單看房價無法發現「設施投資回報失衡」與「平日/假日收益偏食」之痛點，右側雷達圖導入 <strong>0~100 分標準化六維模型</strong>，一次診斷各品牌的營運體質與多邊形幾何特徵。</p>
+      </div>
+
       <div class="gf-panel-grid">
-        <div class="gf-panel col-7">
+        <!-- Brand Weekday vs Weekend Bar Chart -->
+        <div class="gf-panel col-6">
           <div class="gf-panel-header">
             <div class="gf-panel-title"><i class="fa-solid fa-chart-column"></i> 各大飯店品牌平日 vs 假日每晚房價對比</div>
           </div>
           <div class="gf-panel-body">
-            <canvas id="chartBrandCompare" height="280"></canvas>
+            <canvas id="chartBrandCompare" height="340"></canvas>
           </div>
         </div>
 
-        <div class="gf-panel col-5">
-          <div class="gf-panel-header">
-            <div class="gf-panel-title"><i class="fa-solid fa-percent"></i> 品牌假日加價幅度 (%) 排行</div>
-          </div>
-          <div class="gf-panel-body">
-            <canvas id="chartBrandMarkup" height="280"></canvas>
-          </div>
-        </div>
-
+        <!-- 6D Strategic Radar Diagnosis Chart -->
         <div class="gf-panel col-6">
           <div class="gf-panel-header">
-            <div class="gf-panel-title"><i class="fa-solid fa-earth-asia"></i> 亞洲 11 國/地區平均每晚房價對比</div>
-          </div>
-          <div class="gf-panel-body">
-            <canvas id="chartCountryCompare" height="260"></canvas>
-          </div>
-        </div>
-
-        <div class="gf-panel col-6">
-          <div class="gf-panel-header">
-            <div class="gf-panel-title"><i class="fa-solid fa-wave-square"></i> 31 天營運走勢波形監控 (平日平原 vs 週末波峰)</div>
-          </div>
-          <div class="gf-panel-body">
-            <canvas id="chartDailyTrend" height="260"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 2: BRAND ANALYSIS -->
-    <div id="tab-brands" class="tab-content" style="display: none;">
-      <div class="gf-insight-box">
-        <div class="gf-insight-title"><i class="fa-solid fa-circle-info"></i> 亞洲主要飯店品牌平日 vs 假日房價深入剖析 (IHG、萬豪、凱悅、希爾頓、雅高等)</div>
-        <p>本模組深入比較亞洲各大飯店品牌集團在 <strong>平日 (Weekday)</strong> 與 <strong>週末/國定假日 (Weekend/Holiday)</strong> 的訂價行為與價格敏感彈性：</p>
-      </div>
-
-      <div class="gf-panel-grid">
-        <div class="gf-panel col-6">
-          <div class="gf-panel-header">
-            <div class="gf-panel-title"><i class="fa-solid fa-chart-bar"></i> 品牌集團平日 vs 假日絕對房價與溢價金額</div>
-          </div>
-          <div class="gf-panel-body">
-            <canvas id="chartBrandDeep" height="340"></canvas>
-          </div>
-        </div>
-
-        <div class="gf-panel col-6">
-          <div class="gf-panel-header">
-            <div class="gf-panel-title"><i class="fa-solid fa-crosshairs"></i> 🎯 品牌六維營運基因雷達診斷 (6D Strategic Diagnosis)</div>
+            <div class="gf-panel-title"><i class="fa-solid fa-crosshairs" style="color: var(--gf-accent);"></i> 🎯 品牌六維營運基因雷達診斷 (6D Strategic Diagnosis)</div>
             <div class="gf-panel-actions">
               <select id="selRadarBrand" class="gf-select" style="font-size: 12px; padding: 3px 8px;">
                 <option value="ALL" selected>全部對比 (Top Brands + 基準線)</option>
@@ -667,38 +660,44 @@
           </div>
         </div>
 
-        <!-- 6D Strategic Insight Diagnosis Cards -->
-        <div class="gf-panel col-12" style="background: rgba(50, 116, 217, 0.05); border: 1px dashed rgba(50, 116, 217, 0.35);">
-          <div class="gf-panel-header" style="background: transparent;">
-            <div class="gf-panel-title"><i class="fa-solid fa-stethoscope"></i> 雷達圖營運基因診斷與投資規劃建議 (Strategic & Investment Advisory)</div>
+        <!-- Brand Markup % Horizontal Bar -->
+        <div class="gf-panel col-6">
+          <div class="gf-panel-header">
+            <div class="gf-panel-title"><i class="fa-solid fa-percent"></i> 品牌假日加價幅度 (%) 排行</div>
           </div>
-          <div class="gf-panel-body" style="padding: 14px 18px;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
-              <div style="background: var(--gf-panel-bg); padding: 14px 16px; border-radius: 6px; border-left: 4px solid #ff7a00;">
-                <h4 style="font-size: 13px; font-weight: 700; color: #ff7a00; margin-bottom: 6px;"><i class="fa-solid fa-briefcase"></i> 1. 都會商務偏食型 (代表: 洲際 IHG)</h4>
-                <p style="font-size: 12px; line-height: 1.6; color: var(--gf-text-main);">
-                  • <strong>特徵</strong>：地段核心 (95分)、商務客佔比 (100分, 59.7%)，平日房價底氣強勁；但假日加價幅度亞洲最低 (+3.87%)。<br>
-                  • <strong>規劃建議</strong>：核心都會業主首選；營收管理需啟動「週末微渡假 (Staycation) 餐飲住宿套票」，填補週末收益低谷。
-                </p>
-              </div>
-              <div style="background: var(--gf-panel-bg); padding: 14px 16px; border-radius: 6px; border-left: 4px solid #e02f44;">
-                <h4 style="font-size: 13px; font-weight: 700; color: #ff5768; margin-bottom: 6px;"><i class="fa-solid fa-shield-halved"></i> 2. 全能旗艦均衡型 (代表: 萬豪 / 凱悅)</h4>
-                <p style="font-size: 12px; line-height: 1.6; color: var(--gf-text-main);">
-                  • <strong>特徵</strong>：六維指標均衡在 70~85 分區間，圍出最大幾何面積。房價與住房率雙高，抗景氣循環能力最強。<br>
-                  • <strong>規劃建議</strong>：適合量體大、具複合客源物業；業主需嚴控高星級設施折舊攤提，避免重資產壓垮投資報酬率。
-                </p>
-              </div>
-              <div style="background: var(--gf-panel-bg); padding: 14px 16px; border-radius: 6px; border-left: 4px solid #37872d;">
-                <h4 style="font-size: 13px; font-weight: 700; color: #5bc44a; margin-bottom: 6px;"><i class="fa-solid fa-umbrella-beach"></i> 3. 渡假休閒爆發型 (代表: 晶華 Silks)</h4>
-                <p style="font-size: 12px; line-height: 1.6; color: var(--gf-text-main);">
-                  • <strong>特徵</strong>：假日調幅亞洲最高 (+6.86%, 滿分100)、住房去化率極高 (92分)；但商務客佔比 (38分) 與地段較偏。<br>
-                  • <strong>規劃建議</strong>：郊區/景區物業首選；經營面需強化「平日企業移地培訓 (MICE) 合約」，拉抬週一至週四營收基線。
-                </p>
-              </div>
+          <div class="gf-panel-body">
+            <canvas id="chartBrandMarkup" height="260"></canvas>
+          </div>
+        </div>
+
+        <!-- Strategic Advisory Cards -->
+        <div class="gf-panel col-6" style="background: rgba(50, 116, 217, 0.05); border: 1px dashed rgba(50, 116, 217, 0.35);">
+          <div class="gf-panel-header" style="background: transparent;">
+            <div class="gf-panel-title"><i class="fa-solid fa-stethoscope"></i> 雷達圖三大品牌基因診斷與投資規劃建議</div>
+          </div>
+          <div class="gf-panel-body" style="padding: 12px 16px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="background: var(--gf-panel-bg); padding: 10px 14px; border-radius: 6px; border-left: 4px solid #ff7a00;">
+              <strong style="color: #ff7a00; font-size: 13px;"><i class="fa-solid fa-briefcase"></i> 1. 都會商務偏食型 (代表: 洲際 IHG)</strong>
+              <p style="font-size: 12px; line-height: 1.5; color: var(--gf-text-main); margin-top: 4px;">
+                地段 (95分)、商務客佔比 (100分, 59.7%) 極強，但假日調幅亞洲最低 (+3.87%)。<strong>規劃建議</strong>：核心都會業主首選；營收管理需推「週末微渡假 Staycation 套票」補足假日營收。
+              </p>
+            </div>
+            <div style="background: var(--gf-panel-bg); padding: 10px 14px; border-radius: 6px; border-left: 4px solid #e02f44;">
+              <strong style="color: #ff5768; font-size: 13px;"><i class="fa-solid fa-shield-halved"></i> 2. 全能旗艦均衡型 (代表: 萬豪 / 凱悅)</strong>
+              <p style="font-size: 12px; line-height: 1.5; color: var(--gf-text-main); margin-top: 4px;">
+                六維指標均衡在 70~85 分，圍出最大多邊形面積，抗景氣循環最強。<strong>規劃建議</strong>：適合大體量複合客群物業；業主需嚴控高星級設施折舊攤提。
+              </p>
+            </div>
+            <div style="background: var(--gf-panel-bg); padding: 10px 14px; border-radius: 6px; border-left: 4px solid #37872d;">
+              <strong style="color: #5bc44a; font-size: 13px;"><i class="fa-solid fa-umbrella-beach"></i> 3. 渡假休閒爆發型 (代表: 晶華 Silks)</strong>
+              <p style="font-size: 12px; line-height: 1.5; color: var(--gf-text-main); margin-top: 4px;">
+                假日調幅亞洲第一 (+6.86%, 100分)、住房率 92 分；但商務客弱 (38分)。<strong>規劃建議</strong>：景區物業首選；需強化「平日企業移地培訓 (MICE)」補足週一至週四。
+              </p>
             </div>
           </div>
         </div>
 
+        <!-- Brand Data Table -->
         <div class="gf-panel col-12">
           <div class="gf-panel-header">
             <div class="gf-panel-title"><i class="fa-solid fa-table"></i> 亞洲各大飯店品牌集團營運數據全貌表</div>
@@ -725,25 +724,32 @@
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- TAB 3: REGIONAL ANALYSIS -->
-    <div id="tab-regions" class="tab-content" style="display: none;">
+    <!-- SECTION 2: REGIONAL & CITY BENCHMARKS -->
+    <section id="sec-regions">
+      <div class="gf-section-header">
+        <h2><i class="fa-solid fa-globe" style="color: var(--gf-accent-blue);"></i> 2. 亞洲各區域與國家房價對比分析</h2>
+        <span class="gf-badge-tag">Regional & City Benchmarks</span>
+      </div>
+
       <div class="gf-insight-box green">
-        <div class="gf-insight-title"><i class="fa-solid fa-map"></i> 亞洲區域與國家房價對比分析</div>
-        <p>對比 11 個國家與 20+ 個核心城市，揭示亞洲都會與渡假市場的價格天花板與性價比分佈。</p>
+        <div class="gf-insight-title"><i class="fa-solid fa-map"></i> 11 個國家與 20+ 個核心城市價格梯隊與性價比分佈</div>
+        <p>跨國匯率統一折算為美元 (USD)，展現高價市場（新加坡、香港）、成熟市場（韓國、台灣、日本）與高性價比市場（泰國、中國、越南、馬來西亞、菲律賓、印尼）之價格階梯。</p>
       </div>
 
       <div class="gf-panel-grid">
+        <!-- Country Price Bar Chart -->
         <div class="gf-panel col-7">
           <div class="gf-panel-header">
-            <div class="gf-panel-title"><i class="fa-solid fa-chart-simple"></i> 各國平日 vs 假日房價梯隊分佈</div>
+            <div class="gf-panel-title"><i class="fa-solid fa-earth-asia"></i> 亞洲 11 國/地區平日 vs 假日每晚房價對比</div>
           </div>
           <div class="gf-panel-body">
-            <canvas id="chartCountryDeep" height="300"></canvas>
+            <canvas id="chartCountryCompare" height="300"></canvas>
           </div>
         </div>
 
+        <!-- City Price Ranking -->
         <div class="gf-panel col-5">
           <div class="gf-panel-header">
             <div class="gf-panel-title"><i class="fa-solid fa-city"></i> 核心城市平均每晚房價排行</div>
@@ -753,6 +759,7 @@
           </div>
         </div>
 
+        <!-- Country Detailed Table -->
         <div class="gf-panel col-12">
           <div class="gf-panel-header">
             <div class="gf-panel-title"><i class="fa-solid fa-table"></i> 各國家/區域詳細價格指標與主導品牌</div>
@@ -777,16 +784,19 @@
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- TAB 4: CORRELATION ANALYSIS -->
-    <div id="tab-correlation" class="tab-content" style="display: none;">
+    <!-- SECTION 3: CORRELATION ANALYSIS -->
+    <section id="sec-correlation">
+      <div class="gf-section-header">
+        <h2><i class="fa-solid fa-project-diagram" style="color: var(--gf-accent-purple);"></i> 3. 國家房價高低與飯店品牌關聯性深入分析</h2>
+        <span class="gf-badge-tag">Brand vs Country Correlation</span>
+      </div>
+
       <div class="gf-insight-box gold">
         <div class="gf-insight-title"><i class="fa-solid fa-network-wired"></i> 深入解答：在不同國家的房價高低是否跟飯店品牌有關聯？</div>
-        <p><strong>統計實證結論：</strong></p>
-        <p>1. <strong>雙重決定模型 (Dual-Determinant Model)：</strong>房價受<strong>「國家宏觀基底（地理位置、人均GDP、旅遊供需）」</strong>與<strong>「飯店品牌微觀溢價」</strong>共同決定。統計相關分析顯示，品牌價格係數與最終房價具顯著正相關（相關係數 <strong>r = 0.812, p &lt; 0.001</strong>）。</p>
-        <p>2. <strong>跨國品牌溢價的一致性：</strong>在同一國家內部，國際龍頭集團（萬豪、IHG、凱悅）的房價普遍高於該國中位數 <strong>15%~35%</strong>。例如在台灣，萬豪與 IHG 均價達 NT$3,400~3,800，顯著高於中型商務館之 NT$2,500；在泰國與日本亦維持相同的階梯溢價結構。</p>
-        <p>3. <strong>假日的品牌增益放大器：</strong>在渡假勝地（如普吉島、墾丁、日月潭），知名品牌在假日的加價率高達 <strong>12%~25%</strong>，顯著高於非連鎖旅館，證實品牌知名度在供不應求時具備更強大的價格決定權。</p>
+        <p>1. <strong>雙重決定模型 (Dual-Determinant Model)</strong>：房價高低由「國家宏觀市場基底（Market Baseline）」與「飯店品牌微觀溢價」共同決定。統計相關分析顯示，品牌價格係數與最終房價具顯著正相關（相關係數 <strong>r = 0.812, p &lt; 0.001</strong>）。</p>
+        <p>2. <strong>跨國品牌溢價的一致性</strong>：在同一個國家內，跨國連鎖品牌（萬豪、IHG、凱悅）的每晚售價普遍高於該國中位數 <strong>15%~35%</strong>。例如在台灣，萬豪與 IHG 均價達 NT$3,400~3,800，高於獨立商務館之 NT$2,500；在泰國與日本亦維持相同的階梯溢價結構。</p>
       </div>
 
       <div class="gf-panel-grid">
@@ -815,27 +825,66 @@
 
         <div class="gf-panel col-4">
           <div class="gf-panel-header">
-            <div class="gf-panel-title"><i class="fa-solid fa-chart-scatter"></i> 設施分數 vs 房價關聯性</div>
+            <div class="gf-panel-title"><i class="fa-solid fa-chart-scatter"></i> 設施星等分數 vs 房價關聯性</div>
           </div>
           <div class="gf-panel-body">
             <canvas id="chartFacilityCorrelation" height="340"></canvas>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- TAB 5: WORLDWIDE HOTEL EXPLORER -->
-    <div id="tab-explorer" class="tab-content" style="display: none;">
+    <!-- SECTION 4: 31-DAY TIME SERIES TRENDS -->
+    <section id="sec-trends">
+      <div class="gf-section-header">
+        <h2><i class="fa-solid fa-chart-line" style="color: var(--gf-accent-red);"></i> 4. 2026年10月份 (1日~31日) 逐日營運走勢波形監控</h2>
+        <span class="gf-badge-tag">Daily Volatility & Weekend Spikes</span>
+      </div>
+
+      <div class="gf-panel col-12">
+        <div class="gf-panel-header">
+          <div class="gf-panel-title"><i class="fa-solid fa-wave-square"></i> 31 天營運走勢多折線圖 (平日平原 vs 週末波峰與國慶連假調控)</div>
+        </div>
+        <div class="gf-panel-body">
+          <canvas id="chartDailyTrend" height="360"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: GEOGRAPHIC MAP -->
+    <section id="sec-map">
+      <div class="gf-section-header">
+        <h2><i class="fa-solid fa-map-location-dot" style="color: var(--gf-accent-green);"></i> 5. 亞洲 165 間監控飯店地理分佈地圖</h2>
+        <span class="gf-badge-tag">Interactive Geospatial Map</span>
+      </div>
+
+      <div class="gf-panel col-12">
+        <div class="gf-panel-header">
+          <div class="gf-panel-title"><i class="fa-solid fa-location-crosshairs"></i> 亞洲各城市飯店分佈聚落 (點擊地標查看即時房價與平日/假日調幅)</div>
+        </div>
+        <div class="gf-panel-body">
+          <div id="mapView"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: WORLDWIDE HOTEL PRICE EXPLORER -->
+    <section id="sec-explorer">
+      <div class="gf-section-header">
+        <h2><i class="fa-solid fa-table-list" style="color: var(--gf-accent);"></i> 6. 全世界/全區飯店快搜與即時比價系統 (Worldwide Hotel Price Explorer)</h2>
+        <span class="gf-badge-tag">Instant Search & Comparison</span>
+      </div>
+
       <div class="gf-insight-box">
-        <div class="gf-insight-title"><i class="fa-solid fa-magnifying-glass-dollar"></i> 全世界/全區飯店快搜與即時比價系統 (Worldwide Hotel Price Explorer)</div>
-        <p>快速查詢 165 間亞洲與世界級指標旅館。支援<strong>即時關鍵字過濾、多幣別切換、排序、CP值評比與詳細模擬指標彈窗</strong>，讓您在 1 秒內獲得精準決策資訊！</p>
+        <div class="gf-insight-title"><i class="fa-solid fa-magnifying-glass-dollar"></i> 快速查詢 165 間亞洲與世界級指標旅館</div>
+        <p>支援<strong>即時關鍵字過濾、多幣別切換、欄位排序、CP值評比與詳細模擬指標彈窗</strong>，讓您在 1 秒內獲得精準決策資訊！</p>
       </div>
 
       <div class="gf-panel col-12">
         <div class="gf-panel-header">
           <div class="gf-panel-title"><i class="fa-solid fa-list-check"></i> 旅館比價清單 (<span id="txtTableCount">165</span> 間旅館)</div>
           <div class="gf-panel-actions">
-            <span style="font-size: 12px; color: var(--gf-text-sub);">點擊欄位標題可排序 • 點擊旅館查看詳情</span>
+            <span style="font-size: 12px; color: var(--gf-text-sub);">點擊欄位標題可排序 • 點擊「詳情」查看各項營運參數</span>
           </div>
         </div>
         <div class="gf-panel-body gf-table-container">
@@ -860,31 +909,7 @@
           </table>
         </div>
       </div>
-    </div>
-
-    <!-- TAB 6: TRENDS -->
-    <div id="tab-trends" class="tab-content" style="display: none;">
-      <div class="gf-panel col-12">
-        <div class="gf-panel-header">
-          <div class="gf-panel-title"><i class="fa-solid fa-chart-line"></i> 2026年10月份 (1日~31日) 逐日營運房價走勢曲線</div>
-        </div>
-        <div class="gf-panel-body">
-          <canvas id="chartDailyFull" height="380"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 7: MAP -->
-    <div id="tab-map" class="tab-content" style="display: none;">
-      <div class="gf-panel col-12">
-        <div class="gf-panel-header">
-          <div class="gf-panel-title"><i class="fa-solid fa-map-location-dot"></i> 亞洲 165 間監控飯店地理分佈地圖</div>
-        </div>
-        <div class="gf-panel-body">
-          <div id="mapView"></div>
-        </div>
-      </div>
-    </div>
+    </section>
 
   </main>
 
@@ -6572,6 +6597,7 @@
       populateDropdowns();
       setupEventListeners();
       renderAll();
+      setTimeout(initMap, 300);
     }
 
     function populateDropdowns() {
@@ -6593,21 +6619,6 @@
     }
 
     function setupEventListeners() {
-      // Tab switching
-      document.querySelectorAll('.gf-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-          document.querySelectorAll('.gf-tab').forEach(t => t.classList.remove('active'));
-          document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-          tab.classList.add('active');
-          const targetId = tab.dataset.tab;
-          const targetContent = document.getElementById(targetId);
-          if (targetContent) targetContent.style.display = 'block';
-
-          if (targetId === 'tab-map') initMap();
-          window.dispatchEvent(new Event('resize'));
-        });
-      });
-
       // Filters
       document.getElementById('selCurrency').addEventListener('change', (e) => {
         CurrentCurrency = e.target.value;
@@ -6746,14 +6757,8 @@
 
       // 1. Brand Comparison Chart (Dual Bar)
       const brandLabels = AppData.brands.map(b => b.brandGroup.split(' ')[0]);
-      const brandWdData = AppData.brands.map(b => {
-        const conv = convertFromUSD(b.avgWeekdayUSD, CurrentCurrency);
-        return conv.value;
-      });
-      const brandWeData = AppData.brands.map(b => {
-        const conv = convertFromUSD(b.avgWeekendUSD, CurrentCurrency);
-        return conv.value;
-      });
+      const brandWdData = AppData.brands.map(b => convertFromUSD(b.avgWeekdayUSD, CurrentCurrency).value);
+      const brandWeData = AppData.brands.map(b => convertFromUSD(b.avgWeekendUSD, CurrentCurrency).value);
 
       if (charts.brandCompare) charts.brandCompare.destroy();
       const ctx1 = document.getElementById('chartBrandCompare');
@@ -6766,7 +6771,7 @@
               {
                 label: '平日每晚房價',
                 data: brandWdData,
-                backgroundColor: 'rgba(50, 116, 217, 0.8)',
+                backgroundColor: 'rgba(50, 116, 217, 0.85)',
                 borderColor: '#3274d9',
                 borderWidth: 1,
                 borderRadius: 4
@@ -6795,7 +6800,10 @@
         });
       }
 
-      // 2. Brand Markup % Horizontal Bar
+      // 2. Brand 6D Strategic Radar Diagnosis Chart
+      renderRadarChart();
+
+      // 3. Brand Markup % Horizontal Bar
       const sortedMarkupBrands = [...AppData.brands].sort((a,b) => b.weekendMarkupPct - a.weekendMarkupPct);
       if (charts.brandMarkup) charts.brandMarkup.destroy();
       const ctx2 = document.getElementById('chartBrandMarkup');
@@ -6826,9 +6834,8 @@
         });
       }
 
-      // 3. Country Compare Chart
+      // 4. Country Compare Chart
       const countryLabels = AppData.countries.map(c => c.country);
-      const countryData = AppData.countries.map(c => convertFromUSD(c.avgPriceUSD, CurrentCurrency).value);
       if (charts.countryCompare) charts.countryCompare.destroy();
       const ctx3 = document.getElementById('chartCountryCompare');
       if (ctx3) {
@@ -6836,79 +6843,16 @@
           type: 'bar',
           data: {
             labels: countryLabels,
-            datasets: [{
-              label: '國家平均每晚房價',
-              data: countryData,
-              backgroundColor: 'rgba(143, 59, 184, 0.75)',
-              borderColor: '#8f3bb8',
-              borderWidth: 1,
-              borderRadius: 4
-            }]
+            datasets: [
+              { label: '平日均價', data: AppData.countries.map(c => convertFromUSD(c.avgWeekdayUSD, CurrentCurrency).value), backgroundColor: '#3274d9', borderRadius: 4 },
+              { label: '假日均價', data: AppData.countries.map(c => convertFromUSD(c.avgWeekendUSD, CurrentCurrency).value), backgroundColor: '#ff7a00', borderRadius: 4 }
+            ]
           },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { ticks: { color: textColor }, grid: { display: false } },
-              y: { ticks: { color: textColor }, grid: { color: gridColor } }
-            }
-          }
-        });
-      }
-
-      // 4. Daily Trend Chart
-      const dates = AppData.dailyTrends.map(d => `${d.date.slice(8)}日 (${d.dayOfWeek})`);
-      const keyBrands = ['洲際酒店集團 (IHG)', '萬豪國際集團 (Marriott)', '凱悅酒店集團 (Hyatt)', '希爾頓全球 (Hilton)', '雅高酒店集團 (Accor)'];
-      const colors = ['#ff7a00', '#e02f44', '#3274d9', '#8f3bb8', '#37872d'];
-
-      const datasetsDaily = keyBrands.map((kb, i) => {
-        return {
-          label: kb.split(' ')[0],
-          data: AppData.dailyTrends.map(d => convertFromUSD(d[kb] || 0, CurrentCurrency).value),
-          borderColor: colors[i],
-          backgroundColor: colors[i],
-          borderWidth: 2,
-          pointRadius: 2,
-          tension: 0.2
-        };
-      });
-
-      if (charts.dailyTrend) charts.dailyTrend.destroy();
-      const ctx4 = document.getElementById('chartDailyTrend');
-      if (ctx4) {
-        charts.dailyTrend = new Chart(ctx4, {
-          type: 'line',
-          data: { labels: dates, datasets: datasetsDaily },
           options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { labels: { color: textColor } } },
             scales: {
-              x: { ticks: { color: textColor, maxTicksLimit: 12 }, grid: { display: false } },
-              y: { ticks: { color: textColor }, grid: { color: gridColor } }
-            }
-          }
-        });
-      }
-
-      // 5. Brand Deep Chart
-      if (charts.brandDeep) charts.brandDeep.destroy();
-      const ctx5 = document.getElementById('chartBrandDeep');
-      if (ctx5) {
-        charts.brandDeep = new Chart(ctx5, {
-          type: 'bar',
-          data: {
-            labels: brandLabels,
-            datasets: [
-              { label: '平日均價', data: brandWdData, backgroundColor: '#3274d9', borderRadius: 4 },
-              { label: '假日均價', data: brandWeData, backgroundColor: '#ff7a00', borderRadius: 4 }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
               x: { ticks: { color: textColor }, grid: { display: false } },
               y: { ticks: { color: textColor }, grid: { color: gridColor } }
             }
@@ -6916,34 +6860,7 @@
         });
       }
 
-      // 6. Brand 6D Strategic Radar Diagnosis Chart
-      renderRadarChart();
-
-      // 7. Country Deep Chart
-      if (charts.countryDeep) charts.countryDeep.destroy();
-      const ctx7 = document.getElementById('chartCountryDeep');
-      if (ctx7) {
-        charts.countryDeep = new Chart(ctx7, {
-          type: 'bar',
-          data: {
-            labels: countryLabels,
-            datasets: [
-              { label: '平日', data: AppData.countries.map(c => convertFromUSD(c.avgWeekdayUSD, CurrentCurrency).value), backgroundColor: '#3274d9' },
-              { label: '假日', data: AppData.countries.map(c => convertFromUSD(c.avgWeekendUSD, CurrentCurrency).value), backgroundColor: '#ff7a00' }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              x: { ticks: { color: textColor } },
-              y: { ticks: { color: textColor }, grid: { color: gridColor } }
-            }
-          }
-        });
-      }
-
-      // 8. City Comparison Chart
+      // 5. City Comparison Chart
       const cityMap = {};
       AppData.hotels.forEach(h => {
         if (!cityMap[h.city]) cityMap[h.city] = [];
@@ -6981,11 +6898,27 @@
         });
       }
 
-      // 9. Full Daily Trend (Tab 6)
-      if (charts.dailyFull) charts.dailyFull.destroy();
-      const ctx9 = document.getElementById('chartDailyFull');
-      if (ctx9) {
-        charts.dailyFull = new Chart(ctx9, {
+      // 6. Daily Trend Chart
+      const dates = AppData.dailyTrends.map(d => `${d.date.slice(8)}日 (${d.dayOfWeek})`);
+      const keyBrands = ['洲際酒店集團 (IHG)', '萬豪國際集團 (Marriott)', '凱悅酒店集團 (Hyatt)', '希爾頓全球 (Hilton)', '雅高酒店集團 (Accor)'];
+      const colors = ['#ff7a00', '#e02f44', '#3274d9', '#8f3bb8', '#37872d'];
+
+      const datasetsDaily = keyBrands.map((kb, i) => {
+        return {
+          label: kb.split(' ')[0],
+          data: AppData.dailyTrends.map(d => convertFromUSD(d[kb] || 0, CurrentCurrency).value),
+          borderColor: colors[i],
+          backgroundColor: colors[i],
+          borderWidth: 2,
+          pointRadius: 2,
+          tension: 0.2
+        };
+      });
+
+      if (charts.dailyTrend) charts.dailyTrend.destroy();
+      const ctx4 = document.getElementById('chartDailyTrend');
+      if (ctx4) {
+        charts.dailyTrend = new Chart(ctx4, {
           type: 'line',
           data: { labels: dates, datasets: datasetsDaily },
           options: {
@@ -6993,8 +6926,38 @@
             maintainAspectRatio: false,
             plugins: { legend: { labels: { color: textColor } } },
             scales: {
-              x: { ticks: { color: textColor } },
+              x: { ticks: { color: textColor, maxTicksLimit: 16 }, grid: { display: false } },
               y: { ticks: { color: textColor }, grid: { color: gridColor } }
+            }
+          }
+        });
+      }
+
+      // 7. Scatter Chart (Facility vs Price)
+      if (charts.facilityCorr) charts.facilityCorr.destroy();
+      const ctxScatter = document.getElementById('chartFacilityCorrelation');
+      if (ctxScatter) {
+        const scatterData = AppData.hotels.map(h => ({
+          x: h.facilityScore,
+          y: convertFromUSD(h.avgPriceUSD, CurrentCurrency).value,
+          label: h.name
+        }));
+
+        charts.facilityCorr = new Chart(ctxScatter, {
+          type: 'scatter',
+          data: {
+            datasets: [{
+              label: '旅館評分 vs 房價',
+              data: scatterData,
+              backgroundColor: 'rgba(50, 116, 217, 0.7)'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { title: { display: true, text: '設施分數 (1-10)', color: textColor }, ticks: { color: textColor }, grid: { color: gridColor } },
+              y: { title: { display: true, text: `每晚房價 (${CurrentCurrency})`, color: textColor }, ticks: { color: textColor }, grid: { color: gridColor } }
             }
           }
         });
@@ -7183,40 +7146,6 @@
         `;
         tbody.appendChild(tr);
       });
-
-      // Scatter Chart (Facility vs Price)
-      const isDark = document.documentElement.classList.contains('dark');
-      const textColor = isDark ? '#ccccdc' : '#22252b';
-      const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-
-      if (charts.facilityCorr) charts.facilityCorr.destroy();
-      const ctx = document.getElementById('chartFacilityCorrelation');
-      if (ctx) {
-        const scatterData = AppData.hotels.map(h => ({
-          x: h.facilityScore,
-          y: convertFromUSD(h.avgPriceUSD, CurrentCurrency).value,
-          label: h.name
-        }));
-
-        charts.facilityCorr = new Chart(ctx, {
-          type: 'scatter',
-          data: {
-            datasets: [{
-              label: '旅館評分 vs 房價',
-              data: scatterData,
-              backgroundColor: 'rgba(50, 116, 217, 0.7)'
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              x: { title: { display: true, text: '設施分數 (1-10)', color: textColor }, ticks: { color: textColor }, grid: { color: gridColor } },
-              y: { title: { display: true, text: `每晚房價 (${CurrentCurrency})`, color: textColor }, ticks: { color: textColor }, grid: { color: gridColor } }
-            }
-          }
-        });
-      }
     }
 
     function renderTable() {
@@ -7359,6 +7288,8 @@
 
     function initMap() {
       if (leafletMap) return;
+      const mapContainer = document.getElementById('mapView');
+      if (!mapContainer) return;
       leafletMap = L.map('mapView').setView([20.0, 115.0], 4);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
@@ -7382,6 +7313,7 @@
           `);
         }
       });
+      setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 500);
     }
 
     // Start App
